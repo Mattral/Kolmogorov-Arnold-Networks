@@ -32,14 +32,15 @@ class KANLinear(Layer):
         self.build_grid()
 
     def build_grid(self):
-        grid_start, grid_end = self.grid_range
-        grid_span = (grid_end - grid_start) / (self.grid_size - 1)
-        grid_points = tf.linspace(grid_start, grid_end, self.grid_size)
+        grid_points = self.initialize_grid_points()  # Assuming this returns a TensorFlow tensor
+        grid_points_np = grid_points.numpy()  # Convert EagerTensor to NumPy array
+    
         self.grid = self.add_weight(
-            "grid",
-            shape=(self.grid_size,),
-            initializer=tf.constant_initializer(grid_points),
-            trainable=False)
+            name='grid',
+            shape=self.grid_shape,
+            initializer=tf.constant_initializer(grid_points_np),  # Use NumPy array here
+            trainable=True
+        )
 
     def call(self, inputs):
         base_output = tf.matmul(inputs, self.base_weight)
