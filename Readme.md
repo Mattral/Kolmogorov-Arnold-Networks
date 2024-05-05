@@ -1,4 +1,4 @@
-### Documentation for TensorFlow Implementation of Kolmogorov-Arnold Network (KAN)
+# TensorFlow Implementation of Kolmogorov-Arnold Network (KAN)
 
 #### Introduction
 The provided implementation includes a customizable neural network architecture based on Kolmogorov-Arnold Networks (KANs), 
