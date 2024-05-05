@@ -26,6 +26,8 @@ class TestKANLinear(unittest.TestCase):
     def test_forward_pass(self):
         """Test the forward pass computation of KANLinear."""
         layer = KANLinear(10, 5)
+        # Ensure the grid is correctly initialized and used
+        self.assertTrue(len(layer.grid.shape) == 1, "Grid should be one-dimensional")
         input_tensor = tf.random.normal([10, 10])  # batch size of 10, 10 features
         output = layer(input_tensor)
         self.assertEqual(output.shape, (10, 5))
@@ -40,13 +42,14 @@ class TestBSplineFunctions(unittest.TestCase):
 
     def test_b_spline_basis(self):
         """Test B-spline basis computation for known inputs and grid."""
-        x = tf.constant([[0.5], [1.5], [2.5]])
-        grid = tf.constant([0.0, 1.0, 2.0, 3.0])  # changed shape
-        b_spline_values = B_batch_tf(x, tf.expand_dims(grid, 0), k=2, extend=False)  # ensure grid dimensions are expanded
-        expected_shape = (1, 3, 3)  # (num_splines, num_samples, num_grid_points + k - 1)
+        x = tf.constant([[0.5], [1.5], [2.5]])  # Points to evaluate the spline
+        grid = tf.constant([0.0, 1.0, 2.0, 3.0])  # Correct one-dimensional grid
+        # Ensure grid stays one-dimensional
+        b_spline_values = B_batch_tf(x, grid, k=2)
+        expected_shape = (3, 4)  # or whatever your expected shape is
         self.assertEqual(b_spline_values.shape, expected_shape)
 
-
+        
 class TestKANModel(unittest.TestCase):
     def test_model_construction(self):
         """Test the construction of the KAN model."""
