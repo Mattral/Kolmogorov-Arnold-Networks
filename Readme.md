@@ -63,4 +63,34 @@ with fewer parameters compared to traditional deep neural networks.
 This documentation provides an overview and detailed explanation of each component in the TensorFlow implementation of KAN. 
 For practical use, ensure proper testing and validation of the functions, especially around the numerical stability of the B-spline calculations.
 
+# Kolmogorov-Arnold Networks (KANs) Overview
+
+## Introduction
+- **Kolmogorov-Arnold Networks (KANs)** represent a novel neural network architecture inspired by the Kolmogorov-Arnold representation theorem.
+- They differ from traditional Multi-Layer Perceptrons (MLPs) by featuring learnable activation functions on edges instead of fixed activation functions on nodes.
+
+## How KANs Work
+- **Node Functionality:** Nodes in KANs sum incoming signals without applying non-linearities.
+- **Edge Functionality:** Edges contain spline-based learnable activation functions, allowing for precise local adjustments and optimization of univariate functions.
+
+## Advantages of KANs
+- **Accuracy and Interpretability:** KANs can optimize both compositional structures and univariate functions, leading to improved accuracy and interpretability.
+- **Flexibility with Functions:** They are particularly adept at modeling complex, low-dimensional functions accurately.
+
+## Challenges
+- **Training Speed:** KANs currently train significantly slower than MLPs, identified as an engineering challenge that may be optimized in future developments.
+
+## Implications and Potential Applications
+- **Efficiency:** KANs could potentially create more compact and efficient models, reducing the computational expense.
+- **Interpretability:** The learnable activation functions enhance the interpretability of the models, crucial for applications requiring transparency, like healthcare.
+- **Few-shot Learning:** KANs might outperform existing architectures in learning from fewer examples.
+- **Knowledge Representation and Reasoning:** They could potentially enhance the ability of models to represent and manipulate complex, structured knowledge.
+- **Multimodal Learning:** KANs could lead to more effective and efficient multimodal models by leveraging their ability to learn and optimize compositional structures.
+
+## Conclusion
+- **Significance:** Kolmogorov-Arnold Networks mark a significant step forward in neural network design, promising to advance the capabilities and applications of machine learning models.
+- **Future Research:** Ongoing research will likely focus on overcoming the current limitations and expanding the practical applications of KANs.
+
+
+
 Feel free to ask if you need clarificattion or found a bug in ISSUE tab!
