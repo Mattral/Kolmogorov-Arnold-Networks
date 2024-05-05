@@ -73,61 +73,54 @@ class KANLinear(Layer):
 
 
 
-# Adjust the function definition to not require internal casting:
 def extend_grid_tf(grid, k):
-    # Assuming 'grid' is 1D tensor of shape [num_points]
-    if tf.rank(grid) == 1:
-        extended = tf.concat([
-            tf.fill([k], 2 * grid[0] - grid[k]),  # Extend at the beginning
-            grid,
-            tf.fill([k], 2 * grid[-1] - grid[-k-1])  # Extend at the end
-        ], axis=0)
-        return extended
-    else:
+    if tf.rank(grid) != 1:
         raise ValueError("Grid tensor must be one-dimensional")
-
-
+    left = tf.fill([k], 2 * grid[0] - grid[k])  # symmetric extension at the start
+    right = tf.fill([k], 2 * grid[-1] - grid[-k-1])  # symmetric extension at the end
+    return tf.concat([left, grid, right], axis=0)
 
 def B_batch_tf(x, grid, k=3, extend=True):
     """
     Compute B-spline basis values for given inputs using TensorFlow.
     
     Args:
-    -----
         x : Tensor
             Input values, shape (num_samples, 1).
         grid : Tensor
-            Grid points, shape (num_splines, num_grid_points).
+            Grid points, shape (num_grid_points).
         k : int
             Order of the B-spline (degree is k-1).
         extend : bool
             If True, extends the grid by k points on both ends to handle boundary conditions.
     
     Returns:
-    --------
         Tensor
-            B-spline basis values, shape (num_splines, num_grid_points + k - 1, num_samples).
+            B-spline basis values, shape (num_samples, num_grid_points + 2 * k).
     """
-    num_splines = tf.shape(grid)[0]
-    num_samples = tf.shape(x)[0]
-    print("x shape:", x.shape)
-    print("grid shape:", grid.shape)
+    print("x shape before extension:", x.shape)
+    print("grid shape before extension:", grid.shape)
 
     if extend:
         grid = extend_grid_tf(grid, k)
+        print("grid shape after extension:", grid.shape)
+    
+    num_grid_points = tf.shape(grid)[0]
+    num_samples = tf.shape(x)[0]
 
-    x = tf.broadcast_to(x, (num_splines, num_samples))
+    # Broadcasting x to compare against each grid interval
+    x_broadcasted = tf.broadcast_to(x, [num_samples, num_grid_points - 1])
 
     # Initialize B_0
-    B = tf.cast(tf.logical_and(x >= grid[:, :-1], x < grid[:, 1:]), dtype=tf.float32)
+    B = tf.cast(tf.logical_and(x_broadcasted >= grid[:-1], x_broadcasted < grid[1:]), dtype=tf.float32)
 
     # Recursive calculation of B_k
     for d in range(1, k):
-        left_term = (x - grid[:, :-d-1]) / (grid[:, d:-1] - grid[:, :-d-1])
-        right_term = (grid[:, d+1:] - x) / (grid[:, d+1:] - grid[:, 1:-d])
+        left_term = (x_broadcasted - grid[:-d-1]) / (grid[d:-1] - grid[:-d-1])
+        right_term = (grid[d+1:] - x_broadcasted) / (grid[d+1:] - grid[1:-d])
         B = left_term * B[:, :-1] + right_term * B[:, 1:]
 
-    return tf.transpose(B, perm=[0, 2, 1])  # Reshape to (num_splines, num_samples, num_grid_points + k - 1)
+    return B  # shape (num_samples, num_grid_points - 1)
 
 class KAN(tf.keras.models.Sequential):
     def __init__(self, layers_configurations, **kwargs):
