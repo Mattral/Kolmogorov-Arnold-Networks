@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.utils import plot_model
+import numpy as np
 
 class KANLinear(Layer):
     def __init__(self, in_features, out_features, grid_size=5, spline_order=3,
@@ -31,17 +32,17 @@ class KANLinear(Layer):
 
         self.build_grid()
 
+
     def build_grid(self):
-        grid_points = self.initialize_grid_points()  # Assuming this returns a TensorFlow tensor
-        grid_points_np = grid_points.numpy()  # Convert EagerTensor to NumPy array
-    
+        # Direct initialization of grid points here
+        initial_grid = np.random.randn(self.grid_size, self.in_features)  # Modify as necessary
         self.grid = self.add_weight(
-            name='grid',
-            shape=self.grid_shape,
-            initializer=tf.constant_initializer(grid_points_np),  # Use NumPy array here
+            name="grid",
+            shape=(self.grid_size, self.in_features),
+            initializer=tf.constant_initializer(initial_grid),
             trainable=True
         )
-
+        
     def call(self, inputs):
         base_output = tf.matmul(inputs, self.base_weight)
         spline_output = self.compute_spline_output(inputs)
@@ -70,13 +71,22 @@ class KANLinear(Layer):
         })
         return config
 
-def extend_grid_tf(grid, k_extend):
-    h = (grid[:, -1:] - grid[:, :1]) / (tf.shape(grid)[1] - 1)
-    left_extended = grid[:, :1] - h * tf.range(1, k_extend + 1, dtype=grid.dtype)[:, tf.newaxis]
-    right_extended = grid[:, -1:] + h * tf.range(1, k_extend + 1, dtype=grid.dtype)[:, tf.newaxis]
-    
-    extended_grid = tf.concat([left_extended, grid, right_extended], axis=1)
-    return extended_grid
+
+
+# Adjust the function definition to not require internal casting:
+def extend_grid_tf(grid, k):
+    # Assuming 'grid' is 1D tensor of shape [num_points]
+    if tf.rank(grid) == 1:
+        extended = tf.concat([
+            tf.fill([k], 2 * grid[0] - grid[k]),  # Extend at the beginning
+            grid,
+            tf.fill([k], 2 * grid[-1] - grid[-k-1])  # Extend at the end
+        ], axis=0)
+        return extended
+    else:
+        raise ValueError("Grid tensor must be one-dimensional")
+
+
 
 def B_batch_tf(x, grid, k=3, extend=True):
     """
@@ -100,6 +110,8 @@ def B_batch_tf(x, grid, k=3, extend=True):
     """
     num_splines = tf.shape(grid)[0]
     num_samples = tf.shape(x)[0]
+    print("x shape:", x.shape)
+    print("grid shape:", grid.shape)
 
     if extend:
         grid = extend_grid_tf(grid, k)
