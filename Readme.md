@@ -94,3 +94,4 @@ For practical use, ensure proper testing and validation of the functions, especi
 
 
 Feel free to ask if you need clarificattion or found a bug in ISSUE tab!
+Any bug fixes would be greatly appreciated.
