@@ -1,6 +1,8 @@
 
 # TensorFlow Implementation of Kolmogorov-Arnold Network (KAN)
 
+*Update* see [KANX Repo](https://github.com/Mattral/KANX/) for the production grade library implementation.
+
 ## Why This Repository Exists
 
 Kolmogorov-Arnold Networks (KANs) are a recent alternative to traditional MLPs that replace fixed node-wise activations with **learnable edge-wise functions**, often parameterized using splines.
