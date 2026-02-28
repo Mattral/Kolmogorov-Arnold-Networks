@@ -119,3 +119,4 @@ The library does **not** import FastAPI / Pydantic. The API package does
 | `ModelRegistry` mutex | Hot-swap checkpoints without restarting the API. |
 | Hand-rolled YAML validator | Zero pydantic dep in the core lib. |
 | 12-factor env vars on the API | `KANX_CONFIG`, `KANX_CHECKPOINT`, `KANX_MAX_BATCH`. |
+
