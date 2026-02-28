@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanx-api
+  labels:
+    app: kanx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kanx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: kanx
+    spec:
+      # Run as the non-root `kanx` user baked into the Dockerfile (UID 1000).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kanx-api
+          image: ghcr.io/mattral/kanx:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: KANX_CONFIG
+              value: /app/configs/default.yaml
+            - name: KANX_CHECKPOINT
+              value: /mnt/models/kanx_model.keras
+            - name: KANX_MAX_BATCH
+              value: "4096"
+            # Optional security knobs. Set via Secret in real clusters.
+            # - name: KANX_API_KEY
+            #   valueFrom: { secretKeyRef: { name: kanx-api-key, key: token } }
+            # - name: KANX_RATE_LIMIT_RPM
+            #   value: "600"
+            - name: TF_CPP_MIN_LOG_LEVEL
+              value: "3"
+            - name: OMP_NUM_THREADS
+              value: "1"
+          # Both `requests` AND `limits` set — without limits, HPA can't
+          # autoscale meaningfully (a pod can monopolise a node).
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: models
+              mountPath: /mnt/models
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /home/kanx/.cache
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: kanx-models-pvc
+        # readOnlyRootFilesystem requires writeable tmp + cache via emptyDir.
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}

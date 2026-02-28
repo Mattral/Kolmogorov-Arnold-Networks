@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kanx-api
+  labels:
+    app: kanx
+spec:
+  type: ClusterIP
+  selector:
+    app: kanx
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanx-models-pvc
+spec:
+  # IMPORTANT: set `storageClassName` to match your cluster's storage class.
+  # Examples: "gp3" on EKS, "premium-rwo" on GKE, "managed-csi" on AKS.
+  # Leaving it unset means "use the cluster default StorageClass" which may
+  # not exist in every environment.
+  # storageClassName: gp3
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kanx-api
+  annotations:
+    # NOTE: CPU-based HPA is a starter signal. For latency-sensitive
+    # inference workloads, replace with custom metrics (request-queue depth
+    # via KEDA, or `inference_ms` p99 from Prometheus). See `documentations/
+    # deployment.md` for the full discussion.
+    kanx.io/autoscaling-strategy: "cpu-starter"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kanx-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

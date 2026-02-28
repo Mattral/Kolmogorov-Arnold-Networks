@@ -1,0 +1,23 @@
+# kanx MNIST classification config (used by examples/mnist_train.py)
+model:
+  layers: [784, 32, 10]
+  grid_size: 5
+  spline_order: 3
+  base_activation: silu
+  grid_range: [-1.0, 1.0]
+
+training:
+  lr: 0.001
+  epochs: 3
+  batch_size: 128
+  loss: sparse_categorical_crossentropy
+  optimizer: adam
+  val_split: 0.1
+  early_stopping_patience: 0
+  seed: 42
+
+checkpoint:
+  dir: checkpoints
+  filename: kanx_mnist.keras
+  save_best_only: true
+  monitor: loss

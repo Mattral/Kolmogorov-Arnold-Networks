@@ -1,0 +1,49 @@
+name: Docs
+
+# Deploys the MkDocs Material site to the `gh-pages` branch on every push
+# to `main` (and on any change to docs/, documentations/, mkdocs.yml,
+# README.md, or this workflow file). Also runnable manually.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed for `mkdocs gh-deploy` to push to gh-pages
+
+# Avoid concurrent deploys racing on the gh-pages branch.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install MkDocs Material
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Build docs (strict — fails the workflow on broken links)
+        run: mkdocs build --strict
+
+      - name: Configure git
+        run: |
+          git config --local user.name  "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy to gh-pages branch
+        run: mkdocs gh-deploy --force --clean --message "docs: deploy {sha} via mkdocs {version}"

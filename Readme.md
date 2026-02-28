@@ -1,137 +1,287 @@
+<h1 align="center">🚀 kanx</h1>
 
-# TensorFlow Implementation of Kolmogorov-Arnold Network (KAN)
+<p align="center">
+  <strong>Production-grade Kolmogorov-Arnold Networks</strong><br>
+  <em>TensorFlow + PyTorch + ONNX — one library, four surfaces.</em>
+</p>
 
-*Update,* see [KANX Repo](https://github.com/Mattral/KANX/) for the production grade library implementation.
+<p align="center">
+  <a href="https://pypi.org/project/kanx/"><img alt="PyPI" src="https://img.shields.io/pypi/v/kanx?style=for-the-badge&logo=pypi&logoColor=white&color=7C3AED"></a>
+  <a href="https://pypi.org/project/kanx/"><img alt="Downloads" src="https://img.shields.io/pypi/dm/kanx?style=for-the-badge&color=A78BFA"></a>
+  <a href="https://github.com/Mattral/KANX/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Mattral/KANX/ci.yml?branch=main&label=CI&style=for-the-badge&logo=github"></a>
+  <img alt="Python" src="https://img.shields.io/pypi/pyversions/kanx?style=for-the-badge&logo=python&logoColor=white">
+  <a href="https://mattral.github.io/KANX/"><img alt="Docs" src="https://img.shields.io/badge/docs-mkdocs--material-22C55E?style=for-the-badge&logo=readthedocs&logoColor=white"></a>
+  <a href="https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb"><img alt="Colab" src="https://img.shields.io/badge/Colab-train_in_2_min-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white"></a>
+  <img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-A78BFA?style=for-the-badge">
+  <a href="https://doi.org/10.5281/zenodo.20430883">
+    <img alt="DOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20430883-7C3AED?style=for-the-badge&logo=zenodo&logoColor=white">
+  </a>
 
-## Why This Repository Exists
+</p>
 
-Kolmogorov-Arnold Networks (KANs) are a recent alternative to traditional MLPs that replace fixed node-wise activations with **learnable edge-wise functions**, often parameterized using splines.
+<p align="center">
+  <img src="docs/assets/benchmark.png" alt="KAN vs MLP benchmark" width="720"/>
+</p>
 
-While official KAN implementations focus on performance and large-scale experimentation, this repository is intentionally designed to:
+> **`pip install kanx`** &nbsp;·&nbsp; A small KAN beats a 10× larger MLP on smooth, separable targets — **honest, param-matched benchmark below.**
+> One library. Two backends. Real ONNX export. Docker + Kubernetes ready.
 
-• Provide a **clean, readable TensorFlow implementation**  
-• Expose the **core mechanics** of spline-based edge activations  
-• Enable **inspection, experimentation, and learning**, rather than black-box usage  
+---
 
-This is a **learning- and understanding-oriented implementation**, not a production-optimized framework.
+## ⚡ The 30-second magic moment
 
-## Scope and Non-Goals
+```python
+import kanx
 
-### This repository IS:
-- A reference implementation of KANs in TensorFlow
-- Focused on clarity, inspectability, and conceptual understanding
-- Suitable for research prototyping and educational exploration
+# Build, train, predict — in one call. No config files. No compile dance.
+model = kanx.quickstart()                       # trains on synthetic 2-D data
+model.predict([[0.5, 0.2]])                     # → array([[1.04…]])
+```
 
-### This repository IS NOT:
-- A drop-in replacement for pykan
-- Optimized for large-scale or GPU-heavy training
-- Claiming state-of-the-art benchmark performance
+> **⚠️ The #1 KAN production gotcha — calibrate your grid to your data**
+>
+> KANs use B-splines on a fixed input range (default `[-1, 1]`). If your inputs
+> fall outside that range, the spline path **silently returns zero** and you only
+> get the SiLU residual — degraded accuracy with no error message. Fix it in one line:
+>
+> ```python
+> from kanx import KAN, fit_grid_to_data
+> model = KAN([n_features, 64, 1])
+> fit_grid_to_data(model, X_train)              # ← critical for real data
+> model.fit(X_train, y_train, epochs=30)
+> ```
+>
+> `kanx.check_input_range(model, X)` will log a warning at inference if input
+> exceeds the grid. The Roadmap tracks adaptive in-training grid updates as the
+> v0.2 P0 item.
 
+Want more control? Same simplicity, your data:
 
-## How to Use and Explore This Repository
+```python
+from kanx import KAN
+import numpy as np
 
-Recommended workflow:
-1. Start with the conceptual overview of KANs below
-2. Inspect the `KANLinear` layer to understand edge-wise spline activations
-3. Experiment with different grid sizes and spline orders
-4. Visualize learned activation functions (see Visualization section below)
-5. Compare behavior against a standard MLP on toy regression tasks
+X = np.random.uniform(-1, 1, (1024, 2)).astype("float32")
+y = np.sin(np.pi * X[:, :1]) + X[:, 1:2] ** 2
 
+model = KAN([2, 64, 1])
+model.fit(X, y, epochs=30, verbose=0)           # auto-compiles with Adam+MSE
+model.predict(X[:3])
+```
 
-#### Introduction
-The provided implementation includes a customizable neural network architecture based on Kolmogorov-Arnold Networks (KANs), 
-utilizing TensorFlow's API. KANs aim to efficiently approximate multivariate functions by employing nonlinear transformations 
-with fewer parameters compared to traditional deep neural networks.
+### 🔥 PyTorch? Same API.
 
-#### Modules and Dependencies
-- **TensorFlow:** Main library providing tools for machine learning and neural network construction.
+```python
+from kanx.torch import KAN
+import torch
 
-#### Classes and Functions
+model = KAN([2, 64, 1])
+X = torch.randn(1024, 2); y = torch.sin(torch.pi * X[:, :1])
+model.fit(X, y, epochs=30, lr=1e-2)             # one-liner, same semantics
+model.predict([[0.5, 0.2]])
+```
 
-##### `KANLinear` Layer
-- **Description:** Custom TensorFlow layer implementing a linear transformation followed by a B-spline transformation as part of a KAN.
-- **Parameters:**
-  - `in_features`: Integer, number of input features.
-  - `out_features`: Integer, number of output features.
-  - `grid_size`: Integer, number of grid points for B-spline basis.
-  - `spline_order`: Integer, order of the spline (degree is `spline_order - 1`).
-  - `activation`: String, activation function to use after summing base and spline outputs.
-  - `regularization_factor`: Float, factor for L2 regularization.
-  - `grid_range`: Tuple, range of the grid used in B-spline transformation.
-- **Methods:**
-  - `build_grid`: Initializes the grid used for B-spline transformations.
-  - `call`: Computes the output of the layer using both linear and spline transformations.
-  - `compute_spline_output`: Calculates the output from the spline transformation.
+---
 
-##### `B_batch_tf` Function
-- **Description:** Computes B-spline basis values for input values using a specified grid and order.
-- **Parameters:**
-  - `x`: TensorFlow Tensor, input values.
-  - `grid`: TensorFlow Tensor, grid points for the splines.
-  - `k`: Integer, order of B-spline.
-  - `extend`: Boolean, whether to extend the grid to handle boundaries.
-- **Returns:** TensorFlow Tensor of B-spline basis values.
+## 📦 Installation
 
-##### `extend_grid_tf` Function
-- **Description:** Extends a given grid by a specified number of points on both ends.
-- **Parameters:**
-  - `grid`: TensorFlow Tensor, original grid points.
-  - `k_extend`: Integer, number of points to extend on each side.
-- **Returns:** Extended grid.
+```bash
+pip install kanx                # core (TensorFlow)
+pip install "kanx[torch]"       # +PyTorch backend
+pip install "kanx[onnx]"        # +tf2onnx + onnxruntime
+pip install "kanx[api]"         # +FastAPI service
+pip install "kanx[all]"         # everything (api + torch + onnx + dev + docs)
+```
 
-##### `KAN` Class
-- **Description:** Sequential model that aggregates multiple `KANLinear` layers to form a complete KAN.
-- **Parameters:**
-  - `layers_configurations`: List of dictionaries, configurations for each `KANLinear` layer.
+→ Open in Colab: **[Train a KAN in 2 minutes](https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb)**
 
-##### `get_activations` Function
-- **Description:** Utility function to fetch activations from a specified layer in the model.
-- **Parameters:**
-  - `model`: TensorFlow model from which to fetch activations.
-  - `model_inputs`: Input data to the model.
-  - `layer_name`: Optional name of the layer to specifically fetch activations.
-- **Returns:** Activations from the specified layer or all layers if none specified.
+---
 
-#### Notes and Improvements
-1. **Error Handling:** Consider adding error handling for potential issues with input types and values.
-2. **Efficiency:** Analyze and optimize the computation of B-spline basis, which can be critical for performance.
-3. **Documentation:** Ensure each method and function is accompanied by comprehensive docstrings in the code.
+## 📊 Benchmarks (reproducible, fair, multi-baseline)
 
-### Conclusion
-This documentation provides an overview and detailed explanation of each component in the TensorFlow implementation of KAN. 
-For practical use, ensure proper testing and validation of the functions, especially around the numerical stability of the B-spline calculations.
+Synthetic 2-D regression target `y = sin(π·x₁) + cos(2π·x₂)`,
+100 epochs, Adam(lr=1e-2), batch=128, CPU.
 
-# Kolmogorov-Arnold Networks (KANs) Overview
+| Model              | Params | Train (s) | Infer 4k (ms) | **Test MSE** |
+|--------------------|------:|---------:|-------------:|-------------:|
+| **KAN[2,16,1]**    |   432 |    12.50 |        68.64 | **2.14 × 10⁻⁵** |
+| KAN[2,32,1]        |   864 |    16.62 |        25.52 | 4.44 × 10⁻⁴ |
+| MLP[2,32,1]        |   129 |     5.07 |         6.17 | 4.61 × 10⁻¹ (undersized) |
+| MLP[2,16,16,1]     |   337 |     5.46 |         4.08 | 1.60 × 10⁻³ |
+| MLP[2,64,64,1]     | 4 417 |     6.00 |         5.74 | 5.51 × 10⁻⁴ |
 
-## Introduction
-- **Kolmogorov-Arnold Networks (KANs)** represent a novel neural network architecture inspired by the Kolmogorov-Arnold representation theorem.
-- They differ from traditional Multi-Layer Perceptrons (MLPs) by featuring learnable activation functions on edges instead of fixed activation functions on nodes.
+**Honest read.** The smallest KAN (432 params) wins on this smooth separable
+target. The same KAN is ~10–15× *slower at inference* than a same-MSE MLP
+because each edge does a B-spline evaluation. On non-smooth or
+high-dimensional targets, this picture often reverses. We do not claim KANs
+are universally better than MLPs.
 
-## How KANs Work
-- **Node Functionality:** Nodes in KANs sum incoming signals without applying non-linearities.
-- **Edge Functionality:** Edges contain spline-based learnable activation functions, allowing for precise local adjustments and optimization of univariate functions.
+Reproduce with `python benchmarks/compare_mlp.py` (quick, 100 epochs) or
+`python benchmarks/compare_mlp.py --long` (1000 epochs + early-stopping).
 
-## Advantages of KANs
-- **Accuracy and Interpretability:** KANs can optimize both compositional structures and univariate functions, leading to improved accuracy and interpretability.
-- **Flexibility with Functions:** They are particularly adept at modeling complex, low-dimensional functions accurately.
+---
 
-## Challenges
-- **Training Speed:** KANs currently train significantly slower than MLPs, identified as an engineering challenge that may be optimized in future developments.
+## 🧠 How kanx compares to other KAN libraries
 
-## Implications and Potential Applications
-- **Efficiency:** KANs could potentially create more compact and efficient models, reducing the computational expense.
-- **Interpretability:** The learnable activation functions enhance the interpretability of the models, crucial for applications requiring transparency, like healthcare.
-- **Few-shot Learning:** KANs might outperform existing architectures in learning from fewer examples.
-- **Knowledge Representation and Reasoning:** They could potentially enhance the ability of models to represent and manipulate complex, structured knowledge.
-- **Multimodal Learning:** KANs could lead to more effective and efficient multimodal models by leveraging their ability to learn and optimize compositional structures.
+| | [pykan](https://github.com/KindXiaoming/pykan) | [efficient-kan](https://github.com/Blealtan/efficient-kan) | [mlx-kan](https://github.com/Goekdeniz-Guelmez/mlx-kan) | **kanx** |
+|---|:---:|:---:|:---:|:---:|
+| Framework         | PyTorch | PyTorch | MLX (Apple Silicon) | **TF + PyTorch** |
+| Vectorized B-spline | partial | ✅ | ✅ | ✅ |
+| ONNX export       | ❌ | ❌ | ❌ | ✅ **both backends** |
+| REST API service  | ❌ | ❌ | ❌ | ✅ FastAPI |
+| Docker + K8s      | ❌ | ❌ | ❌ | ✅ |
+| Property-based tests | ❌ | ❌ | ❌ | ✅ Hypothesis |
+| Test coverage     | research | research | research | **92%** |
+| PyPI              | ✅ | ✅ | ✅ | ✅ |
+| CI/CD release pipeline | ❌ | ❌ | ❌ | ✅ PyPI + GHCR + Pages |
 
-## Conclusion
-- **Significance:** Kolmogorov-Arnold Networks mark a significant step forward in neural network design, promising to advance the capabilities and applications of machine learning models.
-- **Future Research:** Ongoing research will likely focus on overcoming the current limitations and expanding the practical applications of KANs.
+`kanx` is the only KAN library purpose-built for **production deployment**.
+Research-y libs are great for novel experiments; kanx is what you ship.
 
+---
 
-## Contributions and Feedback
+## 🌐 REST API
 
-Bug reports, clarifications, and experimental extensions are welcome.
-If you are exploring KAN interpretability or visualization, contributions in that direction are especially encouraged.
+```bash
+docker run --rm -p 8000:8000 ghcr.io/mattral/kanx:latest
+# or
+uvicorn api.app:app --port 8000
+```
 
+| Method | Path           | Purpose |
+|-------:|:--------------|:--------|
+| `GET`  | `/api/health`  | Liveness + model load source |
+| `GET`  | `/api/info`    | Version + TF/Torch + model summary |
+| `POST` | `/api/predict` | Inference (single or batch) |
+| `POST` | `/api/load`    | Hot-swap checkpoint |
+| `POST` | `/api/reset`   | Re-init from `KANX_CONFIG` |
+
+```bash
+curl -X POST http://localhost:8000/api/predict \
+     -H 'content-type: application/json' \
+     -d '{"x": [[0.1, -0.2], [0.5, 0.7]]}'
+```
+
+The startup contract loads `KANX_CHECKPOINT` if it exists, otherwise falls
+back to a fresh model built from `KANX_CONFIG`. Boundaries are validated:
+wrong feature count → `400`, oversized batch → `413`, missing checkpoint → `404`.
+
+---
+
+## 🔄 ONNX export
+
+```python
+# From PyTorch
+from kanx.torch import KAN, export_onnx
+model = KAN([2, 64, 1])
+export_onnx(model, "kan.onnx")
+```
+
+```python
+# From TensorFlow
+from kanx import KAN, export_onnx_tf
+import tensorflow as tf
+model = KAN([2, 64, 1]); model(tf.zeros((1, 2)))
+export_onnx_tf(model, "kan.onnx")
+```
+
+✔ Dynamic batch
+✔ Verified numerical consistency (1e-5)
+✔ Works with ONNX Runtime / TensorRT / OpenVINO
+
+---
+
+## 🐳 Docker / ☸️ Kubernetes
+
+```bash
+docker run --rm -p 8000:8000 ghcr.io/mattral/kanx:latest
+kubectl apply -f k8s/    # Deployment + Service + Ingress + HPA + PVC
+```
+
+K8s manifests ship with rolling updates, readiness/liveness probes on
+`/api/health`, an HPA (2 ↔ 10 replicas, CPU-target 70%) and a PVC for the
+model registry.
+
+---
+
+## 🛠️ CLI
+
+```bash
+python -m kanx info                                          # versions
+python -m kanx train --config configs/default.yaml           # train
+python -m kanx predict --checkpoint model.keras --input X.json
+```
+
+---
+
+## 📚 Documentation
+
+→ **<https://mattral.github.io/KANX/>** (MkDocs Material)
+
+| Page | What's inside |
+|------|---------------|
+| [Quickstart](https://mattral.github.io/KANX/quickstart/) | Train your first KAN in 60 seconds |
+| [Architecture](https://mattral.github.io/KANX/architecture/) | Package layout, module contracts |
+| [System Design](https://mattral.github.io/KANX/system_design/) | Serving topology, scaling, failure modes |
+| [REST API](https://mattral.github.io/KANX/api/) | Endpoint reference + curl examples |
+| [Testing](https://mattral.github.io/KANX/testing/) | Test pyramid, numerical invariants |
+| [Deployment](https://mattral.github.io/KANX/deployment/) | CI/CD, rollout, observability |
+| [Benchmarks](https://mattral.github.io/KANX/benchmarks/) | KAN vs MLP — methodology + numbers |
+
+---
+
+## 📄 Research Paper
+
+If you use kanx in academic work, please cite both the original paper and
+the library. Our work is formally documented and available as a preprint:
+
+- 📘 Title: *Bridging Theory and Practice with KANX*
+- 📍 DOI: https://doi.org/10.5281/zenodo.20430883
+- 📂 Zenodo: https://zenodo.org/records/20430883
+- 📄 [Read Paper (preprint)](docs/preprint.pdf)
+
+### Citation
+
+```bibtex
+@article{mattral2026kanx,
+  title={Bridging Theory and Practice with KANX},
+  author={Myet, Min Htet},
+  year={2026},
+  doi={10.5281/zenodo.20430883},
+  publisher={Zenodo}
+}
+
+@article{liu2024kan,
+  title   = {KAN: Kolmogorov-Arnold Networks},
+  author  = {Liu, Ziming and Wang, Yixuan and Vaidya, Sachin and Ruehle,
+             Fabian and Halverson, James and Soljačić, Marin and
+             Hou, Thomas Y. and Tegmark, Max},
+  journal = {arXiv preprint arXiv:2404.19756},
+  year    = {2024}
+}
+```
+
+### References
+
+- Liu et al., *KAN: Kolmogorov-Arnold Networks* — [arXiv:2404.19756](https://arxiv.org/abs/2404.19756)
+- The Kolmogorov-Arnold representation theorem ([Wikipedia](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Arnold_representation_theorem))
+- B-splines & de Boor algorithm — [Carl de Boor (1972)](https://doi.org/10.1016/0021-9045(72)90080-9)
+
+---
+
+## 🤝 Contributing
+
+PRs welcome! See [`CONTRIBUTING.md`](CONTRIBUTING.md). Good places to start:
+
+- 🔖 [Good first issues](https://github.com/Mattral/KANX/labels/good%20first%20issue)
+- 🗺️ [`roadmap.md`](roadmap.md) — P0 / P1 / P2 backlog
+- 💬 [Discussions](https://github.com/Mattral/KANX/discussions)
+
+---
+
+## 📜 License
+
+[Apache 2.0](LICENSE). Use it. Ship it. Tell us when you do — we'd love to
+hear how kanx is being used in the wild.
+
+<p align="center">⭐ <strong>Star the repo</strong> if kanx saved you time.</p>

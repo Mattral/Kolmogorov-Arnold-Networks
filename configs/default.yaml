@@ -1,0 +1,24 @@
+# kanx default training config — synthetic regression
+model:
+  layers: [2, 64, 64, 1]
+  grid_size: 5
+  spline_order: 3
+  base_activation: silu
+  grid_range: [-1.0, 1.0]
+  regularization_factor: 0.0
+
+training:
+  lr: 0.001
+  epochs: 50
+  batch_size: 32
+  loss: mse
+  optimizer: adam
+  val_split: 0.1
+  early_stopping_patience: 10
+  seed: 42
+
+checkpoint:
+  dir: checkpoints
+  filename: kanx_model.keras
+  save_best_only: true
+  monitor: loss
