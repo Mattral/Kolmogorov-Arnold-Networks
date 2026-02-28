@@ -97,8 +97,8 @@ predict(model, x, *, batch_size=None) -> np.ndarray
        │  kanx (lib)  │
        └─────┬────────┘
              │
-       ┌─────┴────┬──────────┬──────────┬────────┐
-       ▼          ▼          ▼          ▼        ▼
+       ┌─────┴────┬──────────┬──────────┬────────────┐
+       ▼          ▼          ▼          ▼            ▼
     layers     model      train     inference  config / utils
        │          │          │          │
        └─── tensorflow / numpy / pyyaml (only core deps) ───┘
