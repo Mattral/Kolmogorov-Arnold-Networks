@@ -23,8 +23,8 @@
       │ uvicorn  │   ... HPA 2–10    │ uvicorn  │
       │ + kanx   │                   │ + kanx   │
       └────┬─────┘                   └────┬─────┘
-           │                               │
-           └──────── PVC (RO) ─────────────┘
+           │                              │
+           └──────── PVC (RO) ────────────┘
                     /mnt/models/kanx_model.keras
 ```
 
