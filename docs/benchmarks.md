@@ -30,3 +30,4 @@
 - This benchmark is **best-case** for KANs (the target is exactly the kind of function the Kolmogorov-Arnold representation theorem applies to). On real tabular or vision data, the picture is far more nuanced.
 - We do **not** claim KANs are universally better than MLPs.
 - For non-smooth or high-dimensional targets, an MLP will typically beat a same-size KAN on both accuracy and throughput.
+
