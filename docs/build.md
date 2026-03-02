@@ -96,3 +96,4 @@ set_global_seed(42)
 
 Seeds Python `random`, `numpy`, `tf.random` and `tf.keras.utils.set_random_seed`
 in one call. Called automatically by `kanx.train`.
+
