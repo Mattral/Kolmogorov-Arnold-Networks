@@ -167,3 +167,4 @@ Initial production release.
 [0.1.4]: https://github.com/Mattral/KANX/releases/tag/v0.1.4
 [0.1.3]: https://github.com/Mattral/KANX/releases/tag/v0.1.3
 [0.1.2]: https://github.com/Mattral/KANX/releases/tag/v0.1.2
+
