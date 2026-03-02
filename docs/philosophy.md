@@ -51,3 +51,4 @@ benchmarked against MLP baselines. **One artifact, many surfaces.**
 - Observability hooks documented in `deployment.md`.
 - Explicit configuration via 12-factor env vars (`KANX_CONFIG`,
   `KANX_CHECKPOINT`, `KANX_MAX_BATCH`).
+
