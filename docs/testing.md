@@ -5,15 +5,15 @@
 ```
                 ▲
                 │
-           ┌────┴────┐
-           │  e2e    │  tests/test_api.py        — FastAPI TestClient
-           ├─────────┤
+           ┌────┴──────┐
+           │    e2e    │  tests/test_api.py        — FastAPI TestClient
+           ├───────────┤
            │integration│ tests/test_train_inference.py — train→ckpt→predict
-           ├─────────┤
-           │ unit    │  tests/test_layers.py     — B-spline + KANLinear
-           │         │  tests/test_model.py      — KAN sequential
-           │         │  tests/test_config.py     — YAML + dataclasses
-           └─────────┘
+           ├───────────┤
+           │   unit    │  tests/test_layers.py     — B-spline + KANLinear
+           │           │  tests/test_model.py      — KAN sequential
+           │           │  tests/test_config.py     — YAML + dataclasses
+           └───────────┘
 ```
 
 * **Unit (30 tests)** — math, shapes, validation, gradient flow.
@@ -76,3 +76,4 @@ pytest -k partition_of_unity     # one test
   reproducible script; we don't gate CI on its accuracy.
 * Docker image — built and smoke-tested in CI but only as a separate job;
   not part of the pytest suite.
+
