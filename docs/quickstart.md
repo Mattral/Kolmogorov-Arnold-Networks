@@ -16,7 +16,49 @@ model = kanx.quickstart()                   # build + train + return
 model.predict([[0.5, 0.2]])                 # → array([[1.04…]])
 ```
 
-## 3. Your data
+## 3. Adaptive Grid Update
+
+During training, refine the B-spline grid based on observed input statistics (recommended for real-world data):
+
+=== "TensorFlow"
+
+    ```python
+    from kanx import KAN
+    import numpy as np
+
+    X = np.random.randn(1000, 4).astype("float32")
+    y = np.sin(X[:, :1]).astype("float32")
+    
+    model = KAN([4, 16, 8, 1])
+    model.fit(X, y, epochs=10, verbose=0)
+    
+    # Refine grids based on input statistics
+    model.update_grid_from_samples(X)
+    
+    # Continue training with refined grids
+    model.fit(X, y, epochs=10, verbose=0)
+    ```
+
+=== "PyTorch"
+
+    ```python
+    import torch
+    from kanx.torch import KAN
+
+    model = KAN([4, 16, 8, 1])
+    X = torch.randn(1000, 4)
+    y = torch.sin(X[:, :1])
+    
+    model.fit(X, y, epochs=10, lr=1e-2)
+    
+    # Refine grids based on input statistics
+    model.update_grid_from_samples(X)
+    
+    # Continue training with refined grids
+    model.fit(X, y, epochs=10, lr=1e-2)
+    ```
+
+## 4. Your data
 
 === "TensorFlow"
 
@@ -44,7 +86,7 @@ model.predict([[0.5, 0.2]])                 # → array([[1.04…]])
     model.save("kan.pt")
     ```
 
-## 3. Serve
+## 5. Serve
 
 ```bash
 # (option A) Local
@@ -67,7 +109,22 @@ curl -X POST http://localhost:8000/api/predict \
 { "output": [[0.31], [0.84]], "shape": [2, 1], "inference_ms": 22.4 }
 ```
 
-## 4. Export to ONNX
+## 6. GPU-Optimized MatrixKAN
+
+For higher throughput on GPUs, use the vectorized `MatrixKAN` — replaces B-spline recursion with batched matrix multiplies:
+
+```python
+from kanx.torch import MatrixKAN
+import torch
+
+model = MatrixKAN([8, 32, 1])  # same interface as KAN
+X = torch.randn(1024, 8).cuda()
+y = model(X)
+```
+
+On GPU, `MatrixKAN` is ~1.5–2× faster than standard `KAN` due to vectorized GEMM operations. CPU performance is comparable. Use standard `KAN` if you need symbolic regression hooks; use `MatrixKAN` for inference-only production.
+
+## 7. Export to ONNX
 
 === "From PyTorch"
 
@@ -94,7 +151,9 @@ out = sess.run(None, {"input": np.zeros((4, 2), dtype=np.float32)})
 
 ## Next steps
 
-- [Architecture](architecture.md) — how the package is laid out
+- [System Design](system_design.md) — KAN architecture, MatrixKAN, grid adaptation
+- [Benchmarks](benchmarks.md) — reproducible benchmarking methodology + real-world results
+- [Architecture](architecture.md) — library structure and module organization
 - [REST API](api.md) — full endpoint reference
 - [Deployment](deployment.md) — production rollouts
 

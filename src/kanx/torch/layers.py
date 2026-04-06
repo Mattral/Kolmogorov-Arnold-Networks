@@ -86,6 +86,7 @@ class KANLinear(nn.Module):
         grid_range: Tuple[float, float] = (-1.0, 1.0),
         scale_noise: float = 0.1,
         trainable_grid: bool = False,
+        grid_eps: float = 0.02,
     ) -> None:
         super().__init__()
         if in_features <= 0 or out_features <= 0:
@@ -104,6 +105,7 @@ class KANLinear(nn.Module):
         self.base_activation_name = base_activation
         self.base_activation = _resolve_activation(base_activation)
         self.grid_range = tuple(grid_range)
+        self.grid_eps = float(grid_eps)
         self.num_basis = self.grid_size + self.spline_order
 
         # base_weight: Glorot uniform
@@ -132,6 +134,48 @@ class KANLinear(nn.Module):
         # (B, F_in, num_basis) × (F_in, F_out, num_basis) → (B, F_out)
         spline_out = torch.einsum("bik,iok->bo", basis, self.spline_weight)
         return base_out + spline_out
+
+    def update_grid_from_samples(self, x: torch.Tensor, margin: float = 0.01) -> None:
+        """Adaptive grid update from data samples (pykan parity).
+        
+        Recomputes the per-feature grid using quantiles of the input data,
+        then interpolates between the uniform grid and the sample-based grid
+        using grid_eps as the interpolation parameter.
+        
+        Args:
+            x: (batch, in_features) input tensor to fit grid to.
+            margin: margin applied to grid boundaries (not used in current implementation).
+        """
+        if x.shape[-1] != self.in_features:
+            raise ValueError(
+                f"Last dimension of x ({x.shape[-1]}) must match "
+                f"in_features ({self.in_features})"
+            )
+        
+        with torch.no_grad():
+            # Compute quantile-based grid for each feature
+            new_grids = []
+            for i in range(self.in_features):
+                feat = x[:, i]
+                # Compute quantiles from 0 to 1
+                quantiles = torch.linspace(0, 1, self.grid_size + 1, 
+                                          device=x.device, dtype=x.dtype)
+                feat_grid = torch.quantile(feat, quantiles)
+                new_grids.append(feat_grid)
+            
+            new_grid_tensor = torch.stack(new_grids, dim=0)
+            
+            # Interpolate between uniform and sample-based grid
+            # grid_eps controls how much we favor the sample-based grid
+            uniform_grid = self.grid.clone()
+            interpolated_grid = (1.0 - self.grid_eps) * uniform_grid + self.grid_eps * new_grid_tensor
+            
+            # Update grid in-place
+            if isinstance(self.grid, nn.Parameter):
+                self.grid.data.copy_(interpolated_grid)
+            else:
+                # Re-register as buffer if it was a buffer
+                self.register_buffer("grid", interpolated_grid)
 
     def extra_repr(self) -> str:
         return (
