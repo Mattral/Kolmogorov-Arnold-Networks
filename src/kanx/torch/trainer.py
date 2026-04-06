@@ -14,6 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 
+import numpy as np
+import time
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -67,6 +69,8 @@ class Trainer:
         val_split: float = 0.0,
         early_stopping_patience: int = 0,
         verbose: int = 1,
+        tensorboard: bool = False,
+        log_dir: str = "logs/kanx",
     ) -> TrainHistory:
         X = _as_tensor(X)
         y = _as_tensor(y)
@@ -83,6 +87,19 @@ class Trainer:
         ds = TensorDataset(X_train, y_train)
         loader = DataLoader(ds, batch_size=batch_size, shuffle=True)
         opt = _build_optimizer(optimizer, self.model.parameters(), lr)
+
+        writer = None
+        sample_batch = None
+        if tensorboard:
+            try:
+                from torch.utils.tensorboard import SummaryWriter
+            except ImportError as exc:
+                raise ImportError(
+                    "TensorBoard support requires the tensorboard package. "
+                    "Install it with `pip install tensorboard`."
+                ) from exc
+            writer = SummaryWriter(log_dir=log_dir)
+            sample_batch = _as_tensor(X[:256]).to(self.device)
 
         best_loss = float("inf")
         bad_epochs = 0
@@ -121,6 +138,33 @@ class Trainer:
                     flush=True,
                 )
 
+            if writer is not None:
+                writer.add_scalar("train_loss", float(train_loss), epoch)
+                if X_val is not None:
+                    writer.add_scalar("val_loss", float(vloss), epoch)
+                if epoch % 5 == 0:
+                    for layer_idx, layer in enumerate(self.model.modules()):
+                        if hasattr(layer, "spline_weight"):
+                            writer.add_scalar(
+                                f"layer_{layer_idx}/spline_weight_norm",
+                                float(layer.spline_weight.norm().item()),
+                                epoch,
+                            )
+                if sample_batch is not None and epoch % 10 == 0:
+                    self.model.eval()
+                    with torch.no_grad():
+                        durations = []
+                        for _ in range(100):
+                            t0 = time.perf_counter()
+                            self.model(sample_batch)
+                            durations.append((time.perf_counter() - t0) * 1000.0)
+                    writer.add_scalar(
+                        "inference_latency_ms",
+                        float(np.median(durations)),
+                        epoch,
+                    )
+                    self.model.train()
+
             # Early stopping
             if early_stopping_patience > 0:
                 if monitor < best_loss - 1e-9:
@@ -132,6 +176,9 @@ class Trainer:
                         if verbose:
                             print(f"early-stop at epoch {epoch}", flush=True)
                         break
+        if writer is not None:
+            writer.flush()
+            writer.close()
         return self.history
 
 

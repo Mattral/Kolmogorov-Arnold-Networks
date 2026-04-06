@@ -99,6 +99,45 @@ docker run --rm -p 8000:8000 \
     ghcr.io/mattral/kanx:latest
 ```
 
+## 6. Monitoring with TensorBoard
+
+When you train with `--tensorboard`, kanx writes events to `logs/kanx` by default.
+
+```bash
+python -m kanx train --config configs/default.yaml --tensorboard
+tensorboard --logdir logs/kanx
+```
+
+Open the TensorBoard UI in your browser to inspect `loss`, `val_loss`, per-layer
+`grid` histograms, and `inference_latency_ms`.
+
+## 7. Share your model
+
+After training, publish your KAN model to the HuggingFace Hub and load it
+anywhere with a single line.
+
+```python
+from kanx import KAN
+
+model = KAN([2, 64, 1])
+model(tf.zeros((1, 2)))
+model.push_to_hub("username/kanx-demo", private=True)
+
+loaded = KAN.from_pretrained("username/kanx-demo")
+```
+
+For the PyTorch backend:
+
+```python
+from kanx.torch import KAN
+
+model = KAN([2, 64, 1])
+model(torch.zeros((1, 2)))
+model.push_to_hub("username/kanx-demo", private=True)
+
+loaded = KAN.from_pretrained("username/kanx-demo")
+```
+
 ```bash
 curl -X POST http://localhost:8000/api/predict \
      -H 'content-type: application/json' \

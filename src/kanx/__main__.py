@@ -63,6 +63,16 @@ def main(argv=None) -> int:
              "If omitted a small synthetic regression dataset is used.",
     )
     p_train.add_argument("--verbose", type=int, default=1)
+    p_train.add_argument(
+        "--tensorboard",
+        action="store_true",
+        help="Write TensorBoard logs to the configured log directory.",
+    )
+    p_train.add_argument(
+        "--log-dir",
+        default="logs/kanx",
+        help="Directory for TensorBoard logs when --tensorboard is enabled.",
+    )
 
     p_pred = sub.add_parser("predict", help="run inference on a checkpoint")
     p_pred.add_argument("--checkpoint", required=True)
@@ -98,7 +108,14 @@ def main(argv=None) -> int:
                 # Broadcast to output dim by repeating the column.
                 y = np.tile(y, (1, cfg.model.layers[-1]))
         _LOG.info("Loaded dataset: X=%s y=%s", X.shape, y.shape)
-        train(cfg, X, y, verbose=args.verbose)
+        train(
+            cfg,
+            X,
+            y,
+            verbose=args.verbose,
+            tensorboard=args.tensorboard,
+            log_dir=args.log_dir,
+        )
         ckpt = resolve_checkpoint_path(cfg.checkpoint.dir, cfg.checkpoint.filename)
         _LOG.info("Done. Checkpoint: %s", ckpt)
         return 0
