@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-06-02T17:08:20.293947+00:00",
+  "system": {
+    "platform": "Linux-6.8.0-1052-azure-x86_64-with-glibc2.39",
+    "cpu": "x86_64 / Linux",
+    "gpu": null,
+    "tf_version": "2.21.0"
+  },
+  "note": "PyTorch benchmarks disabled on CPU-only environments due to TensorFlow/PyTorch CUDA initialization conflicts",
+  "results": [
+    {
+      "dataset": "california",
+      "model": "KAN_TF",
+      "rmse_mean": 0.4679927110671997,
+      "rmse_std": 0.014102494431591336,
+      "r2_mean": 0.7807748913764954,
+      "r2_std": 0.012569786947484946,
+      "train_time_s": 3.1888190747999032,
+      "params": 2592,
+      "inference_latency_cpu_ms": 17.84700249936577,
+      "inference_latency_gpu_ms": null
+    },
+    {
+      "dataset": "concrete",
+      "model": "KAN_TF",
+      "rmse_mean": 0.38078389763832093,
+      "rmse_std": 0.03534477528360474,
+      "r2_mean": 0.8540850877761841,
+      "r2_std": 0.012548143781878957,
+      "train_time_s": 1.3730820428001607,
+      "params": 2592,
+      "inference_latency_cpu_ms": 17.987781499869016,
+      "inference_latency_gpu_ms": null
+    },
+    {
+      "dataset": "energy",
+      "model": "KAN_TF",
+      "rmse_mean": 0.19693924784660338,
+      "rmse_std": 0.015269152707420066,
+      "r2_mean": 0.9605589270591736,
+      "r2_std": 0.006048471192100936,
+      "train_time_s": 1.372558062000462,
+      "params": 2592,
+      "inference_latency_cpu_ms": 17.824732000008225,
+      "inference_latency_gpu_ms": null
+    }
+  ]
+}
