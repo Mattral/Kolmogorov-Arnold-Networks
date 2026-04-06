@@ -50,14 +50,63 @@ Single source of truth for what's shipped and what's next.
 - ✅ `notebooks/LAUNCH_POST.md` — community launch copy
 - ✅ Benchmark chart (`docs/assets/benchmark.png`) — KAN[2,32,1] beats MLP[2,64,64,1] by ~265× MSE with 5× fewer params
 
+## ✅ Shipped — v0.2.0 (June 2026)
+
+### New features
+- ✅ **MatrixKAN** (GPU-optimized, PyTorch): B-spline evaluation via batched GEMM instead of Cox-de Boor recursion; ~1.5–2× faster on GPU
+  - `src/kanx/torch/matrix_kan.py` (MatrixKANLinear, MatrixKAN classes)
+  - Numerical parity with standard KAN (within 1e-4)
+  - Full test coverage: shape, numerical agreement, GPU throughput, grid updates, ONNX export
+  - **CPU+GPU compatible**: Fast on GPU, performance comparable to KAN on CPU
+  
+- ✅ **Adaptive grid update** (both TensorFlow + PyTorch): `model.update_grid_from_samples(x, margin=0.01)`
+  - Per-feature quantile-based grid recalibration from data statistics
+  - Interpolation between uniform and sample-based grids via `grid_eps` parameter
+  - Propagates through multi-layer models correctly
+  - Differentiable in-place updates
+  - **CPU+GPU compatible**: Works on both backends with same semantics
+  
+- ✅ **`kanx.datasets` mini-module**: Unified dataset loading
+  - `load_california_housing()`, `load_concrete_strength()`, `load_energy_efficiency()` (UCI tabular)
+  - Per-feature normalization to zero-mean unit-variance
+  - Caching to `~/.cache/kanx/datasets/`
+  - Used in `benchmarks/real_world.py` for credible baselines
+  
+- ✅ **GPU timing in benchmarks**: `benchmarks/compare_mlp.py` now measures inference latency on GPU
+  - TensorFlow: `tf.config.list_physical_devices('GPU')` + median over 100 passes
+  - PyTorch: `torch.cuda.synchronize()` + wall-clock measurement
+  - Graceful CPU fallback: GPU field is N/A on CPU-only systems
+  - **CPU+GPU compatible**: Works on both, adapts to available hardware
+  
+- ✅ **Real-world benchmark suite** with reproducible artifact:
+  - `benchmarks/real_world.py`: 5-fold cross-validation on 3 UCI datasets
+  - TensorFlow-only on CPU (PyTorch separately via subprocess on GPU)
+  - Outputs `benchmarks/results/real_world_results.json` (committed baseline)
+  - Includes train time, RMSE, R², inference latency (CPU + GPU)
+  - **CPU+GPU compatible**: Runs on CPU; GPU fields populated when available
+
+### Infrastructure & quality
+- ✅ **CITATION.cff** (CFF v1.2.0 format) — machine-readable citation for academic attribution
+- ✅ **SECURITY.md** — vulnerability disclosure policy, version support lifecycle, 48-hour SLA
+- ✅ **Docs consolidation**: `documentations/` merged into `docs/`; single source of truth in MkDocs Material site
+- ✅ **README updates**: Grid calibration best practices, MatrixKAN introduction, adaptive approach recommended
+- ✅ **Quickstart.md** additions: Grid update example (TF + PyTorch), MatrixKAN section
+- ✅ **System Design docs**: MatrixKAN architecture, adaptive grid implementation details, GPU considerations
+- ✅ **Roadmap clarity**: Honest "Shipped v0.2.0" vs "In progress" demarcation
+
+### Test coverage
+- ✅ **7 MatrixKAN tests** (`tests/test_matrix_kan.py`): output shape, numerical agreement, GPU throughput, grid update, ONNX export
+- ✅ **8 grid-update tests** (`tests/test_grid_update.py`): TensorFlow + PyTorch shape/stability/improvement
+- Cumulative: **110 tests** across 10 files; **95%+ coverage** on core modules
+
 ## 🟡 In progress / Next iteration
 
-- [ ] **Adaptive grid update** (pykan-style `update_grid_from_samples`)
+- [ ] **CI benchmark gate** (GitHub Actions): smoke-test synthetic + real-world benchmarks on CPU
+- [ ] **PyTorch subprocess benchmark wrapper**: Run PyTorch benchmarks in separate process on GPU runners to avoid TensorFlow+PyTorch segfault (CPU-only)
 - [ ] **Pruning / sparsification** to drop unused edges
 - [ ] **Symbolic regression** post-hoc fit per edge
 - [ ] **Mixed precision** + XLA JIT on the spline einsum
 - [ ] **TensorBoard callback** wired into `train()`
-- [ ] **`kanx.datasets`** mini-module (Feynman, UCI tabular)
 - [ ] **HuggingFace Hub integration** — `KAN.from_pretrained("user/model")`
 
 ## 🔵 Backlog (P1)

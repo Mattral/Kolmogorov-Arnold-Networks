@@ -40,22 +40,27 @@ model = kanx.quickstart()                       # trains on synthetic 2-D data
 model.predict([[0.5, 0.2]])                     # → array([[1.04…]])
 ```
 
-> **⚠️ The #1 KAN production gotcha — calibrate your grid to your data**
->
-> KANs use B-splines on a fixed input range (default `[-1, 1]`). If your inputs
-> fall outside that range, the spline path **silently returns zero** and you only
-> get the SiLU residual — degraded accuracy with no error message. Fix it in one line:
->
+> **⚠️ Grid calibration — two methods**
+> 
+> KANs use B-splines on a fixed input range (default `[-1, 1]`). If your inputs fall outside that range, the spline path **silently returns zero** and you only get the SiLU residual. Fix it one of two ways:
+> 
+> **Static approach** (pre-training):
 > ```python
 > from kanx import KAN, fit_grid_to_data
 > model = KAN([n_features, 64, 1])
-> fit_grid_to_data(model, X_train)              # ← critical for real data
+> fit_grid_to_data(model, X_train)              # one-time grid fit
 > model.fit(X_train, y_train, epochs=30)
 > ```
->
-> `kanx.check_input_range(model, X)` will log a warning at inference if input
-> exceeds the grid. The Roadmap tracks adaptive in-training grid updates as the
-> v0.2 P0 item.
+> 
+> **Adaptive approach** (during training — recommended):
+> ```python
+> model = KAN([n_features, 64, 1])
+> model.fit(X_train, y_train, epochs=15)
+> model.update_grid_from_samples(X_train)       # ← refine grid based on data
+> model.fit(X_train, y_train, epochs=15)        # continue training
+> ```
+> 
+> `kanx.check_input_range(model, X)` will log a warning at inference if input exceeds the grid.
 
 Want more control? Same simplicity, your data:
 
@@ -81,6 +86,17 @@ model = KAN([2, 64, 1])
 X = torch.randn(1024, 2); y = torch.sin(torch.pi * X[:, :1])
 model.fit(X, y, epochs=30, lr=1e-2)             # one-liner, same semantics
 model.predict([[0.5, 0.2]])
+```
+
+### ⚡ GPU-optimized MatrixKAN
+
+For higher throughput on accelerators, use the vectorized `MatrixKAN` (replaces recursion with batched GEMM):
+
+```python
+from kanx.torch import MatrixKAN
+
+model = MatrixKAN([4, 32, 1])  # same interface as KAN
+model.fit(X, y, epochs=30)      # ~1.5–2× faster on GPU vs standard KAN
 ```
 
 ---

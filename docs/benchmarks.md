@@ -31,3 +31,34 @@
 - We do **not** claim KANs are universally better than MLPs.
 - For non-smooth or high-dimensional targets, an MLP will typically beat a same-size KAN on both accuracy and throughput.
 
+## Real-world tabular benchmarks (new)
+
+We ran 5-fold cross-validated real-world tabular benchmarks on three UCI datasets (California Housing, Concrete Strength, Energy Efficiency) using the TensorFlow KAN implementation. PyTorch benchmarks are disabled on CPU-only environments due to TensorFlow/PyTorch CUDA initialization conflicts; see the benchmark artifact for full details.
+
+Summary (median across folds):
+
+| Dataset | Model | Params | Train (s) | RMSE mean ± std | R² mean ± std | CPU latency (ms) |
+|---|---|---:|---:|---|---|---:|
+| california | KAN_TF | 2592 | 3.19 | 0.46799 ± 0.01410 | 0.78077 ± 0.01257 | 17.85 |
+| concrete | KAN_TF | 2592 | 1.37 | 0.38078 ± 0.03534 | 0.85409 ± 0.01255 | 17.99 |
+| energy | KAN_TF | 2592 | 1.37 | 0.19694 ± 0.01527 | 0.96056 ± 0.00605 | 17.82 |
+
+Full results (JSON) and system metadata are saved as an artifact in the repository:
+
+- [benchmarks/results/real_world_results.json](benchmarks/results/real_world_results.json)
+
+Notes:
+- These experiments were run on a CPU-only environment; GPU timings and PyTorch runs are available when running on machines with compatible CUDA drivers.
+- The benchmark script used: `benchmarks/real_world.py` (TensorFlow-only mode on CPU).
+
+GPU timing note:
+- The micro-benchmarks now record both CPU and GPU inference latencies where available. Run the canonical benchmark on a CUDA-enabled host to populate the `Infer 4k GPU (ms)` column:
+
+```bash
+PYTHONPATH=src python benchmarks/compare_mlp.py    # CPU-only or GPU if available
+PYTHONPATH=src python benchmarks/compare_mlp.py --long  # convergence runs
+```
+
+If running in CI where GPUs are available, ensure the runner has compatible CUDA drivers and `TORCH_INDUCTOR_DISABLE_TRITON` is unset so PyTorch GPU benchmarks run in the same job.
+
+
