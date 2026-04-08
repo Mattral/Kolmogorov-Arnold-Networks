@@ -183,12 +183,9 @@ class LoadRequest(BaseModel):
 # ---------------------------------------------------------------------------
 # FastAPI app
 # ---------------------------------------------------------------------------
-@asynccontextmanager
-async def _lifespan(app_):
+def _startup_event() -> None:
     src = _initialise(DEFAULT_CHECKPOINT, DEFAULT_CONFIG)
     print(f"[kanx-api] initialised from {src}", flush=True)
-    Instrumentator().instrument(app_).expose(app_, endpoint="/metrics")
-    yield
 
 
 app = FastAPI(
@@ -198,8 +195,14 @@ app = FastAPI(
         "Loads a checkpoint at startup with fallback to a fresh model."
     ),
     version=__version__,
-    lifespan=_lifespan,
 )
+
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
+
+@app.on_event("startup")
+def startup() -> None:
+    _startup_event()
 
 app.add_middleware(
     CORSMiddleware,

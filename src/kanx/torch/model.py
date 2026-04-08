@@ -77,6 +77,8 @@ class KAN(nn.Sequential):
         verbose: int = 1,
         device: str | None = None,
         loss_fn=None,
+        tensorboard: bool = False,
+        log_dir: str = "logs/kanx",
     ):
         """Zero-friction fit: ``model.fit(X, y)`` — no optimizer or compile dance.
 
@@ -86,7 +88,8 @@ class KAN(nn.Sequential):
         # Local import to avoid an import cycle.
         from .trainer import Trainer
         return Trainer(self, device=device, loss_fn=loss_fn).fit(
-            X, y,
+            X,
+            y,
             epochs=epochs,
             batch_size=batch_size,
             lr=lr,
@@ -94,6 +97,8 @@ class KAN(nn.Sequential):
             val_split=val_split,
             early_stopping_patience=early_stopping_patience,
             verbose=verbose,
+            tensorboard=tensorboard,
+            log_dir=log_dir,
         )
 
     @torch.no_grad()
