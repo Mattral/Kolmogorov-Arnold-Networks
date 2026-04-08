@@ -12,7 +12,8 @@ from typing import Iterable, List, Sequence, Union
 
 import yaml
 import tensorflow as tf
-from huggingface_hub import HfApi, hf_hub_download
+import huggingface_hub
+from huggingface_hub import HfApi
 
 from .layers import KANLinear
 
@@ -54,6 +55,7 @@ class KAN(tf.keras.Sequential):
             "regularization_factor": regularization_factor,
             "grid_range": grid_range,
         }
+        self._defaults = self._default_kwargs
         self._extra_kwargs = kwargs
 
         if len(self._layers_spec) == 0:
@@ -125,15 +127,19 @@ class KAN(tf.keras.Sequential):
 
     def get_config(self):
         return {
-            "layers": self._layers_spec,
-            **self._default_kwargs,
+            "layers": list(self._layers_spec),
+            "grid_size": int(self._default_kwargs["grid_size"]),
+            "spline_order": int(self._default_kwargs["spline_order"]),
+            "base_activation": str(self._default_kwargs["base_activation"]),
+            "regularization_factor": float(self._default_kwargs["regularization_factor"]),
+            "grid_range": list(self._default_kwargs["grid_range"]),
             "name": self.name,
         }
 
     @classmethod
     def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> "KAN":
-        model_path = hf_hub_download(repo_id=repo_id, filename="model.keras", revision=revision)
-        config_path = hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
+        model_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="model.keras", revision=revision)
+        config_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
         with open(config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
