@@ -31,10 +31,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-api   = ["fastapi>=0.100", "uvicorn[standard]>=0.23", "pydantic>=2"]
+api   = ["fastapi>=0.100", "uvicorn[standard]>=0.23", "pydantic>=2", "prometheus-fastapi-instrumentator>=6"]
 torch = ["torch>=2.0"]
 onnx  = ["tf2onnx>=1.17", "onnx>=1.16", "onnxruntime>=1.18"]
 hub   = ["huggingface_hub>=0.21"]
+symbolic = ["sympy>=1.12"]
 dev   = [
   "pytest>=7",
   "pytest-cov>=4",
@@ -46,9 +47,11 @@ dev   = [
   "build>=1",
   "twine>=4",
   "tensorboard>=2.16",
+  "mypy>=1.8",
+  "types-PyYAML",
 ]
 docs  = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
-all   = ["kanx[api,torch,onnx,hub,dev,docs]"]
+all   = ["kanx[api,torch,onnx,hub,symbolic,dev,docs]"]
 
 [project.scripts]
 kanx = "kanx.__main__:main"
@@ -90,6 +93,13 @@ target-version = ["py310"]
 source = ["src/kanx"]
 omit = ["src/kanx/__main__.py"]
 branch = true
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+ignore_missing_imports = true
+disallow_untyped_defs = true
+warn_return_any = true
 
 [tool.coverage.report]
 exclude_lines = [

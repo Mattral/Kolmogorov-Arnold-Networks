@@ -84,6 +84,16 @@ P1 backlog (`roadmap.md`):
 * Structured JSON logs.
 * OpenTelemetry traces around `/api/predict`.
 
+### Prometheus scrape config
+
+```yaml
+scrape_configs:
+  - job_name: kanx-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['kanx-api.default.svc.cluster.local:8000']
+```
+
 ## Disaster recovery
 
 * The image's `KANX_CONFIG` is a known-good architecture — if the PVC is

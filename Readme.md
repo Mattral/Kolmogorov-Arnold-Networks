@@ -108,7 +108,9 @@ pip install kanx                # core (TensorFlow)
 pip install "kanx[torch]"       # +PyTorch backend
 pip install "kanx[onnx]"        # +tf2onnx + onnxruntime
 pip install "kanx[api]"         # +FastAPI service
-pip install "kanx[all]"         # everything (api + torch + onnx + dev + docs)
+pip install "kanx[hub]"         # +HuggingFace Hub integration
+pip install "kanx[symbolic]"    # +Symbolic regression hooks
+pip install "kanx[all]"         # everything (api + torch + onnx + hub + symbolic + dev + docs)
 ```
 
 → Open in Colab: **[Train a KAN in 2 minutes](https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb)**
@@ -170,6 +172,7 @@ uvicorn api.app:app --port 8000
 |-------:|:--------------|:--------|
 | `GET`  | `/api/health`  | Liveness + model load source |
 | `GET`  | `/api/info`    | Version + TF/Torch + model summary |
+| `GET`  | `/metrics`     | Prometheus scrape endpoint |
 | `POST` | `/api/predict` | Inference (single or batch) |
 | `POST` | `/api/load`    | Hot-swap checkpoint |
 | `POST` | `/api/reset`   | Re-init from `KANX_CONFIG` |
