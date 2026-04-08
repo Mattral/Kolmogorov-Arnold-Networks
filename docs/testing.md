@@ -22,7 +22,7 @@
 * **End-to-end (7 tests)** — FastAPI TestClient hits `/api/{health,info,
   predict,load,reset}` with valid and invalid payloads.
 
-Total: **46 tests, all green**, runtime <5 s on a 2-vCPU machine.
+Total: **113 tests, all green**.
 
 ## Conventions
 

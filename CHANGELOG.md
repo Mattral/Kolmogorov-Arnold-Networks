@@ -6,6 +6,41 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-06-03
+
+### Added
+- **`kanx.datasets` mini-module** — UCI/Feynman dataset loaders, cached downloads, and dataset utilities for real-world tabular experiments.
+- **HuggingFace Hub integration** — `KAN.from_pretrained()` plus `model.push_to_hub()` support for both TensorFlow and PyTorch models.
+- **Prometheus `/metrics` scrape endpoint** in the FastAPI service via `prometheus-fastapi-instrumentator`.
+- **Symbolic regression hooks** — `kanx.torch.SymbolicFitter` extracts closed-form edge functions from trained models.
+- **TensorBoard logging** for both TF and PyTorch training paths, with event files written to the configured log directory.
+- **Docs and examples** updated to reflect the implemented extras and production-ready serving features.
+
+### Changed
+- Bumped package version metadata to **0.1.8** in `pyproject.toml`, `src/kanx/__init__.py`, and `CITATION.cff`.
+- Aligned docs, release notes, and README with the actual shipped feature set.
+
+### Fixed
+- Final audit of README badges, PyPI metadata, and root documentation references.
+
+## [0.1.7] - 2026-06-02
+
+### Added
+- **README cosmetic and metadata fixes** including correct LICENSE badge link and peppy total-downloads badge.
+- **`CITATION.cff` and `SECURITY.md`** for academic citation and security disclosures.
+- **Docs consolidation** — merged legacy `documentations/` into `docs/` and aligned MkDocs navigation.
+- **Real-world benchmark suite** with `benchmarks/real_world.py` and committed baseline results artifact.
+- **GPU timing path** in `benchmarks/compare_mlp.py` for CPU/GPU inference comparisons.
+- **MatrixKAN** GPU-optimized PyTorch kernel using batched GEMM for B-spline evaluation.
+- `.gitignore` cleanup rules for temporary root artifacts created by pip/installers.
+
+### Changed
+- Updated `docs/benchmarks.md`, `docs/quickstart.md`, and `README.md` to reflect new benchmark and MatrixKAN support.
+- Removed stale `documentations/` references from deployment comments and docs copy.
+
+### Fixed
+- Cross-link and doc path issues caused by the old dual-documentation layout.
+
 ## [0.1.6] - 2026-05-30
 
 This release closes a FAANG-grade audit. Six concrete corrections:
@@ -162,7 +197,10 @@ Initial production release.
 - Hand-rolled YAML validator (no pydantic dep in the core library).
 - API uses pydantic only at the request-boundary edge.
 
-[Unreleased]: https://github.com/Mattral/KANX/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/Mattral/KANX/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/Mattral/KANX/releases/tag/v0.1.8
+[0.1.7]: https://github.com/Mattral/KANX/releases/tag/v0.1.7
+[0.1.6]: https://github.com/Mattral/KANX/releases/tag/v0.1.6
 [0.1.5]: https://github.com/Mattral/KANX/releases/tag/v0.1.5
 [0.1.4]: https://github.com/Mattral/KANX/releases/tag/v0.1.4
 [0.1.3]: https://github.com/Mattral/KANX/releases/tag/v0.1.3

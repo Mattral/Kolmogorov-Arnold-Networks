@@ -12,7 +12,14 @@ kanx/
 │   ├── train.py          # train() pipeline + optimiser/loss factories
 │   ├── inference.py      # predict() + save_model / load_model
 │   ├── config.py         # KanxConfig dataclasses + YAML validator
-│   └── utils.py          # logging, seeding, path helpers
+│   ├── utils.py          # logging, seeding, path helpers
+│   └── torch/            # PyTorch parallel surface
+│       ├── __init__.py
+│       ├── layers.py
+│       ├── model.py
+│       ├── trainer.py
+│       ├── matrix_kan.py
+│       └── symbolic.py
 │
 ├── api/                  # serving layer (depends on kanx, not vice-versa)
 │   ├── __init__.py
@@ -25,7 +32,7 @@ kanx/
 ├── benchmarks/           # KAN vs MLP harness
 ├── configs/              # YAML training configs
 ├── scripts/              # train.sh / benchmark.sh / test.sh
-├── documentations/       # this directory
+├── docs/                 # MkDocs source and reference docs
 ├── k8s/                  # Kubernetes manifests
 ├── Dockerfile            # release image
 └── pyproject.toml        # build / install / pytest / ruff / black config

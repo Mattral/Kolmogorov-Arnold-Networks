@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kanx"
-version = "0.1.7"
+version = "0.1.8"
 description = "Production-grade Kolmogorov-Arnold Networks — TensorFlow + PyTorch + ONNX."
 authors = [{ name = "kanx contributors" }]
 license = { text = "Apache-2.0" }

@@ -24,7 +24,7 @@ bash scripts/test.sh
 pytest tests/ -v --cov=src/kanx
 ```
 
-Expected: **46 passed, ~95% coverage** on the library.
+Expected: **113 passed, ~94% coverage** on the library.
 
 ## Train from the CLI
 

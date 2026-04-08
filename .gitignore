@@ -63,6 +63,9 @@ venv.bak/
 *.swo
 .DS_Store
 
+# Temporary root install/artifact files
+=*
+
 # --------------------------------------------------------------------------
 # Model checkpoints (large binaries — don't commit to source control)
 # --------------------------------------------------------------------------

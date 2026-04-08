@@ -236,5 +236,5 @@ else:
   `[kanx-api] initialised from …`).
 * `inference_ms` returned on every `/api/predict` response for client-side
   histogram metrics.
-* Roadmap (P1): Prometheus `/metrics` endpoint via `prometheus-fastapi-instrumentator`.
+* Prometheus `/metrics` endpoint is implemented by the FastAPI service and documented in `docs/deployment.md`.
 
