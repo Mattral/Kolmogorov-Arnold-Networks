@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://pypi.org/project/kanx/"><img alt="PyPI" src="https://img.shields.io/pypi/v/kanx?style=for-the-badge&logo=pypi&logoColor=white&color=7C3AED"></a>
   <a href="https://pypi.org/project/kanx/"><img alt="Downloads" src="https://img.shields.io/pypi/dm/kanx?style=for-the-badge&color=A78BFA"></a>
-  <a href="https://static.pepy.tech/badge/kanx"><img alt="Total Downloads" src="https://static.pepy.tech/badge/kanx"></a>
+  <a href="https://pepy.tech/project/kanx">  <img alt="Total Downloads" src="https://img.shields.io/pepy/dt/kanx?style=for-the-badge&color=F87171"></a>
   <a href="./CITATION.cff"><img alt="Cite" src="https://img.shields.io/badge/cite-CITATION.cff-brightgreen?style=for-the-badge"></a>
   <a href="https://github.com/Mattral/KANX/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Mattral/KANX/ci.yml?branch=main&label=CI&style=for-the-badge&logo=github"></a>
   <img alt="Python" src="https://img.shields.io/pypi/pyversions/kanx?style=for-the-badge&logo=python&logoColor=white">
