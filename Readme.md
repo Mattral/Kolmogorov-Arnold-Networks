@@ -30,6 +30,30 @@
 
 ---
 
+
+## ⭐ Why kanx?
+<div align="center">
+
+Every other KAN library stops at research. `kanx` goes the full distance:
+
+| | [pykan](https://github.com/KindXiaoming/pykan) | [efficient-kan](https://github.com/Blealtan/efficient-kan) | [mlx-kan](https://github.com/Goekdeniz-Guelmez/mlx-kan) | **kanx** |
+|---|:---:|:---:|:---:|:---:|
+| Framework         | PyTorch | PyTorch | MLX (Apple Silicon) | **TF + PyTorch** |
+| Vectorized B-spline | partial | ✅ | ✅ | ✅ |
+| ONNX export       | ❌ | ❌ | ❌ | ✅ **both backends** |
+| REST API service  | ❌ | ❌ | ❌ | ✅ FastAPI |
+| Docker + K8s      | ❌ | ❌ | ❌ | ✅ |
+| Property-based tests | ❌ | ❌ | ❌ | ✅ Hypothesis |
+| Test coverage     | research | research | research | **94%** |
+| PyPI              | ✅ | ✅ | ✅ | ✅ |
+| CI/CD release pipeline | ❌ | ❌ | ❌ | ✅ PyPI + GHCR + Pages |
+
+`kanx` is the only KAN library purpose-built for **production deployment**.
+Research-y libs are great for novel experiments; kanx is what you ship.
+</div>
+
+---
+
 ## ⚡ The 30-second magic moment
 
 ```python
@@ -125,8 +149,11 @@ Optional extras:
 
 ## 📊 Benchmarks (reproducible, fair, multi-baseline)
 
+<div align="center">
+  
 Synthetic 2-D regression target `y = sin(π·x₁) + cos(2π·x₂)`,
 100 epochs, Adam(lr=1e-2), batch=128, CPU.
+
 
 | Model              | Params | Train (s) | Infer 4k (ms) | **Test MSE** |
 |--------------------|------:|---------:|-------------:|-------------:|
@@ -135,6 +162,8 @@ Synthetic 2-D regression target `y = sin(π·x₁) + cos(2π·x₂)`,
 | MLP[2,32,1]        |   129 |     5.07 |         6.17 | 4.61 × 10⁻¹ (undersized) |
 | MLP[2,16,16,1]     |   337 |     5.46 |         4.08 | 1.60 × 10⁻³ |
 | MLP[2,64,64,1]     | 4 417 |     6.00 |         5.74 | 5.51 × 10⁻⁴ |
+
+</div>
 
 **Honest read.** The smallest KAN (432 params) wins on this smooth separable
 target. The same KAN is ~10–15× *slower at inference* than a same-MSE MLP
@@ -147,24 +176,6 @@ Reproduce with `python benchmarks/compare_mlp.py` (quick, 100 epochs) or
 
 ---
 
-## 🧠 How kanx compares to other KAN libraries
-
-| | [pykan](https://github.com/KindXiaoming/pykan) | [efficient-kan](https://github.com/Blealtan/efficient-kan) | [mlx-kan](https://github.com/Goekdeniz-Guelmez/mlx-kan) | **kanx** |
-|---|:---:|:---:|:---:|:---:|
-| Framework         | PyTorch | PyTorch | MLX (Apple Silicon) | **TF + PyTorch** |
-| Vectorized B-spline | partial | ✅ | ✅ | ✅ |
-| ONNX export       | ❌ | ❌ | ❌ | ✅ **both backends** |
-| REST API service  | ❌ | ❌ | ❌ | ✅ FastAPI |
-| Docker + K8s      | ❌ | ❌ | ❌ | ✅ |
-| Property-based tests | ❌ | ❌ | ❌ | ✅ Hypothesis |
-| Test coverage     | research | research | research | **94%** |
-| PyPI              | ✅ | ✅ | ✅ | ✅ |
-| CI/CD release pipeline | ❌ | ❌ | ❌ | ✅ PyPI + GHCR + Pages |
-
-`kanx` is the only KAN library purpose-built for **production deployment**.
-Research-y libs are great for novel experiments; kanx is what you ship.
-
----
 
 ## 🌐 REST API
 
@@ -174,6 +185,8 @@ docker run --rm -p 8000:8000 ghcr.io/mattral/kanx:latest
 uvicorn api.app:app --port 8000
 ```
 
+<div align="center">
+  
 | Method | Path           | Purpose |
 |-------:|:--------------|:--------|
 | `GET`  | `/api/health`  | Liveness + model load source |
@@ -182,6 +195,8 @@ uvicorn api.app:app --port 8000
 | `POST` | `/api/predict` | Inference (single or batch) |
 | `POST` | `/api/load`    | Hot-swap checkpoint |
 | `POST` | `/api/reset`   | Re-init from `KANX_CONFIG` |
+
+</div>
 
 ```bash
 curl -X POST http://localhost:8000/api/predict \
@@ -241,7 +256,24 @@ python -m kanx predict --checkpoint model.keras --input X.json
 
 ---
 
+## ⭐ Quality
+
+- **95 tests** across 8 files — unit, integration, E2E, property-based, performance regression
+- **94% library coverage** (99% layers, 100% model)
+- **Hypothesis property tests**: partition of unity, shape invariants, gradient finiteness
+- **Numerical contracts**: ONNX parity within 1e-5, save/load roundtrip identity
+- **Performance regression alarms**: latency budgets on forward pass and predict
+- CI matrix: Python 3.10 / 3.11 / 3.12 + lint + Docker smoke + MkDocs build
+
+```bash
+pytest tests/ -v --cov=src/kanx
+```
+
+---
+
 ## 📚 Documentation
+
+<div align="center">
 
 → **<https://mattral.github.io/KANX/>** (MkDocs Material)
 
@@ -255,18 +287,24 @@ python -m kanx predict --checkpoint model.keras --input X.json
 | [Deployment](https://mattral.github.io/KANX/deployment/) | CI/CD, rollout, observability |
 | [Benchmarks](https://mattral.github.io/KANX/benchmarks/) | KAN vs MLP — methodology + numbers |
 
+</div>
+
 ---
 
 ## 📄 Research Paper
 
 If you use kanx in academic work, please cite both the original paper and
-the library. Our work is formally documented and available as a preprint:
+the library. 
+
+Our work is formally documented and available as a preprint:
 
 - 📘 Title: *Bridging Theory and Practice with KANX*
 - 📍 DOI: https://doi.org/10.5281/zenodo.20430883
 - 📂 Zenodo: https://zenodo.org/records/20430883
 - 📄 [Read Paper (preprint)](docs/preprint.pdf)
 - 📄 [Read Paper (ArXiv)](docs/KANX_ArXiv_Paper.pdf)
+
+
 
 ### Citation
 
