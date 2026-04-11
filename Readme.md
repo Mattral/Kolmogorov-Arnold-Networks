@@ -266,6 +266,7 @@ the library. Our work is formally documented and available as a preprint:
 - 📍 DOI: https://doi.org/10.5281/zenodo.20430883
 - 📂 Zenodo: https://zenodo.org/records/20430883
 - 📄 [Read Paper (preprint)](docs/preprint.pdf)
+- 📄 [Read Paper (ArXiv)](docs/KANX_ArXiv_Paper.pdf)
 
 ### Citation
 
