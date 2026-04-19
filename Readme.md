@@ -2,7 +2,8 @@
 
 <p align="center">
   <strong>Production-grade Kolmogorov-Arnold Networks</strong><br>
-  <em>TensorFlow + PyTorch + ONNX — one library, four surfaces.</em>
+  <em>TensorFlow + PyTorch + ONNX — one library, four surfaces. </em><br>
+  <em> > `kanx` is the only Kolmogorov-Arnold Network (KAN) library purpose-built for production deployment.</em>
 </p>
 
 <p align="center">
@@ -48,9 +49,43 @@ Every other KAN library stops at research. `kanx` goes the full distance:
 | PyPI              | ✅ | ✅ | ✅ | ✅ |
 | CI/CD release pipeline | ❌ | ❌ | ❌ | ✅ PyPI + GHCR + Pages |
 
-`kanx` is the only KAN library purpose-built for **production deployment**.
-Research-y libs are great for novel experiments; kanx is what you ship.
 </div>
+
+Most of the other KAN implementations are strictly academic. `KANX` bridges the gap between theory and reality by providing:
+1. **Multi-Backend Support:** Native TensorFlow and PyTorch (`MatrixKAN`) implementations.
+2. **Real Deployment:** True ONNX export, FastAPI (`/api/predict`), Docker, and Kubernetes configs out-of-the-box.
+3. **High-Throughput Options:** Vectorized `MatrixKAN` to replace recursive B-splines with batched GEMMs for GPU acceleration.
+4. **Grid Calibration:** Native adaptive and static grid fitting to prevent out-of-bounds input collapse.
+
+
+---
+
+## 📊 Benchmarks (reproducible, fair, multi-baseline)
+
+<div align="center">
+  
+Synthetic 2-D regression target `y = sin(π·x₁) + cos(2π·x₂)`,
+100 epochs, Adam(lr=1e-2), batch=128, CPU.
+
+
+| Model              | Params | Train (s) | Infer 4k (ms) | **Test MSE** |
+|--------------------|------:|---------:|-------------:|-------------:|
+| **KAN[2,16,1]**    |   432 |    12.50 |        68.64 | **2.14 × 10⁻⁵** |
+| KAN[2,32,1]        |   864 |    16.62 |        25.52 | 4.44 × 10⁻⁴ |
+| MLP[2,32,1]        |   129 |     5.07 |         6.17 | 4.61 × 10⁻¹ (undersized) |
+| MLP[2,16,16,1]     |   337 |     5.46 |         4.08 | 1.60 × 10⁻³ |
+| MLP[2,64,64,1]     | 4 417 |     6.00 |         5.74 | 5.51 × 10⁻⁴ |
+
+</div>
+
+**Honest read.** The smallest KAN (432 params) wins on this smooth separable
+target. The same KAN is ~10–15× *slower at inference* than a same-MSE MLP
+because each edge does a B-spline evaluation. On non-smooth or
+high-dimensional targets, this picture often reverses. We do not claim KANs
+are universally better than MLPs.
+
+Reproduce with `python benchmarks/compare_mlp.py` (quick, 100 epochs) or
+`python benchmarks/compare_mlp.py --long` (1000 epochs + early-stopping).
 
 ---
 
@@ -86,6 +121,8 @@ model.predict([[0.5, 0.2]])                     # → array([[1.04…]])
 > 
 > `kanx.check_input_range(model, X)` will log a warning at inference if input exceeds the grid.
 
+---
+
 Want more control? Same simplicity, your data:
 
 ```python
@@ -100,6 +137,8 @@ model.fit(X, y, epochs=30, verbose=0)           # auto-compiles with Adam+MSE
 model.predict(X[:3])
 ```
 
+---
+
 ### 🔥 PyTorch? Same API.
 
 ```python
@@ -111,6 +150,9 @@ X = torch.randn(1024, 2); y = torch.sin(torch.pi * X[:, :1])
 model.fit(X, y, epochs=30, lr=1e-2)             # one-liner, same semantics
 model.predict([[0.5, 0.2]])
 ```
+
+---
+
 
 ### ⚡ GPU-optimized MatrixKAN
 
@@ -143,39 +185,31 @@ Optional extras:
 * `kanx[hub]` adds `push_to_hub()` / `from_pretrained()` for HuggingFace integration.
 * `kanx[symbolic]` adds `SymbolicFitter` for post-hoc edge function extraction.
 
-→ Open in Colab: **[Train a KAN in 2 minutes](https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb)**
+→ Open in Colab: **[Train a KAN in 2-to-5 minutes](https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb)**
 
 ---
 
-## 📊 Benchmarks (reproducible, fair, multi-baseline)
-
-<div align="center">
-  
-Synthetic 2-D regression target `y = sin(π·x₁) + cos(2π·x₂)`,
-100 epochs, Adam(lr=1e-2), batch=128, CPU.
 
 
-| Model              | Params | Train (s) | Infer 4k (ms) | **Test MSE** |
-|--------------------|------:|---------:|-------------:|-------------:|
-| **KAN[2,16,1]**    |   432 |    12.50 |        68.64 | **2.14 × 10⁻⁵** |
-| KAN[2,32,1]        |   864 |    16.62 |        25.52 | 4.44 × 10⁻⁴ |
-| MLP[2,32,1]        |   129 |     5.07 |         6.17 | 4.61 × 10⁻¹ (undersized) |
-| MLP[2,16,16,1]     |   337 |     5.46 |         4.08 | 1.60 × 10⁻³ |
-| MLP[2,64,64,1]     | 4 417 |     6.00 |         5.74 | 5.51 × 10⁻⁴ |
+## 🏗️ Production Serving
 
-</div>
+We include out-of-the-box serving. Simply install `kanx[api]` and run:
 
-**Honest read.** The smallest KAN (432 params) wins on this smooth separable
-target. The same KAN is ~10–15× *slower at inference* than a same-MSE MLP
-because each edge does a B-spline evaluation. On non-smooth or
-high-dimensional targets, this picture often reverses. We do not claim KANs
-are universally better than MLPs.
+```bash
+# Starts a FastAPI server with Prometheus scraping at /metrics
+python -m kanx.serve 
 
-Reproduce with `python benchmarks/compare_mlp.py` (quick, 100 epochs) or
-`python benchmarks/compare_mlp.py --long` (1000 epochs + early-stopping).
+```
+
+**API Contract:**
+
+* `GET /api/health` - Liveness & model load source
+* `GET /api/info` - TF/Torch backend version and summary
+* `POST /api/predict` - Batched inference
+
+*For enterprise scaling, see our `/k8s` directory for Helm charts and Kubernetes manifests.*
 
 ---
-
 
 ## 🌐 REST API
 
