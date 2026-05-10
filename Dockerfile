@@ -22,22 +22,3 @@ COPY configs/ ./configs/
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir .[api,onnx]
-
-# Make the runtime directory writeable by the non-root user (for the
-# /app/checkpoints volume mount, the model registry, etc.).
-RUN mkdir -p /app/checkpoints && chown -R kanx:kanx /app
-USER kanx
-
-ENV PYTHONPATH=/app/src:/app \
-    KANX_CONFIG=/app/configs/default.yaml \
-    KANX_CHECKPOINT=/app/checkpoints/kanx_model.keras \
-    TF_CPP_MIN_LOG_LEVEL=2 \
-    OMP_NUM_THREADS=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-EXPOSE 8000
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS http://localhost:8000/api/health || exit 1
-
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000"]
