@@ -14,3 +14,4 @@ services:
     volumes:
       - ./checkpoints:/app/checkpoints
     restart: unless-stopped
+
