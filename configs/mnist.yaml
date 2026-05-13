@@ -1,4 +1,5 @@
 # kanx MNIST classification config (used by examples/mnist_train.py)
+
 model:
   layers: [784, 32, 10]
   grid_size: 5
