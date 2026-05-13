@@ -47,3 +47,4 @@ jobs:
 
       - name: Deploy to gh-pages branch
         run: mkdocs gh-deploy --force --clean --message "docs: deploy {sha} via mkdocs {version}"
+
