@@ -16,7 +16,7 @@
   <a href="https://mattral.github.io/KANX/"><img alt="Docs" src="https://img.shields.io/badge/docs-mkdocs--material-22C55E?style=for-the-badge&logo=readthedocs&logoColor=white"></a>
   <a href="https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb"><img alt="Colab" src="https://img.shields.io/badge/Colab-train_in_2_to_5_min-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-A78BFA?style=for-the-badge"></a>
-  <a href="https://doi.org/10.5281/zenodo.20430883">
+  <a href="https://doi.org/10.5281/zenodo.20615396">
     <img alt="DOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20430883-7C3AED?style=for-the-badge&logo=zenodo&logoColor=white">
   </a>
 
@@ -332,8 +332,8 @@ the library.
 
 Our work is formally documented and available as a preprint:
 
-- 📘 Title: *Bridging Theory and Practice with KANX*
-- 📍 DOI: https://doi.org/10.5281/zenodo.20430883
+- 📘 Title: *KANX: A Production-Grade Open-Source Library for Kolmogorov-Arnold Networks*
+- 📍 DOI: https://doi.org/10.5281/zenodo.20615396
 - 📂 Zenodo: https://zenodo.org/records/20430883
 - 📄 [Read Paper (preprint)](docs/preprint.pdf)
 - 📄 [Read Paper (ArXiv)](docs/KANX_ArXiv_Paper.pdf)
@@ -344,10 +344,10 @@ Our work is formally documented and available as a preprint:
 
 ```bibtex
 @article{mattral2026kanx,
-  title={Bridging Theory and Practice with KANX},
+  title={KANX: A Production-Grade Open-Source Library for Kolmogorov-Arnold Networks},
   author={Myet, Min Htet},
   year={2026},
-  doi={10.5281/zenodo.20430883},
+  doi={10.5281/zenodo.20615396},
   publisher={Zenodo}
 }
 
