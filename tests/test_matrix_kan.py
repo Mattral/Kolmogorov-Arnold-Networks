@@ -96,7 +96,6 @@ class TestMatrixKANGPU:
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
     def test_matrix_kan_gpu_throughput(self):
         """MatrixKAN GPU inference is measurably faster than KANLinear (2x+ speedup).
-        
         This test is indicative; actual speedup depends on hardware.
         """
         device = "cuda" if torch.cuda.is_available() else "cpu"
