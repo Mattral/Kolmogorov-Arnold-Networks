@@ -15,7 +15,7 @@ integration / mixed precision setup works out of the box.
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
@@ -57,15 +57,15 @@ def build_loss(name: str):
 
 # ---------------------------------------------------------------------------
 def train(
-    config: KanxConfig | Dict[str, Any],
+    config: KanxConfig | dict[str, Any],
     X: np.ndarray | tf.Tensor,
     y: np.ndarray | tf.Tensor,
     *,
     verbose: int = 1,
-    extra_callbacks: Optional[list] = None,
+    extra_callbacks: list | None = None,
     tensorboard: bool = False,
     log_dir: str = "logs/kanx",
-) -> Tuple[KAN, tf.keras.callbacks.History]:
+) -> tuple[KAN, tf.keras.callbacks.History]:
     """Train a KAN model and persist the best checkpoint."""
     if isinstance(config, dict):
         config = validate_config(config)

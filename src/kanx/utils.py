@@ -5,7 +5,6 @@ import logging
 import os
 import random
 import sys
-from typing import Optional
 
 import numpy as np
 
@@ -69,7 +68,6 @@ def fit_grid_to_data(model, X, pad: float = 0.05) -> tuple[float, float]:
 
     n_updated = 0
     try:
-        import tensorflow as tf
         from kanx.layers import KANLinear as TFKANLinear
         for layer in getattr(model, "layers", []):
             if isinstance(layer, TFKANLinear):
@@ -85,6 +83,7 @@ def fit_grid_to_data(model, X, pad: float = 0.05) -> tuple[float, float]:
 
     try:
         import torch
+
         from kanx.torch.layers import KANLinear as TorchKANLinear
         for sub in model.modules() if hasattr(model, "modules") else []:
             if isinstance(sub, TorchKANLinear):
@@ -174,7 +173,7 @@ def ensure_dir(path: str) -> str:
 
 
 def resolve_checkpoint_path(
-    ckpt_dir: str, filename: str, root: Optional[str] = None
+    ckpt_dir: str, filename: str, root: str | None = None
 ) -> str:
     root = root or os.getcwd()
     return os.path.join(root, ckpt_dir, filename) if not os.path.isabs(ckpt_dir) \

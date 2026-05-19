@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 """Minimal KAN torch training test."""
 import os
+
 os.environ["TORCH_INDUCTOR_DISABLE_TRITON"] = "1"
 
-import torch
-from kanx.torch import KAN
 import numpy as np
+
+from kanx.torch import KAN
 
 print("Creating KAN model...")
 model = KAN([2, 32, 1])

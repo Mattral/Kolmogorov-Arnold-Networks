@@ -11,7 +11,6 @@ import argparse
 import json
 import os
 import sys
-from typing import Tuple
 
 import numpy as np
 
@@ -25,7 +24,7 @@ _LOG = get_logger("kanx.cli")
 
 
 # ---------------------------------------------------------------------------
-def _load_xy(path: str) -> Tuple[np.ndarray, np.ndarray]:
+def _load_xy(path: str) -> tuple[np.ndarray, np.ndarray]:
     """Load (X, y) from either a .npz file with keys X/y, or a CSV where the
     last column is the target. Used by `kanx train`."""
     if path.endswith(".npz"):
@@ -41,7 +40,7 @@ def _load_xy(path: str) -> Tuple[np.ndarray, np.ndarray]:
 
 def _load_x(path: str) -> np.ndarray:
     if path.endswith(".json"):
-        with open(path, "r") as f:
+        with open(path) as f:
             return np.asarray(json.load(f), dtype=np.float32)
     if path.endswith(".npz"):
         return np.load(path)["X"].astype(np.float32)

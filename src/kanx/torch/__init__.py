@@ -25,11 +25,11 @@ ONNX export::
 from __future__ import annotations
 
 from .layers import KANLinear, b_spline_basis, extend_grid
-from .model import KAN, build_kan
 from .matrix_kan import MatrixKAN, MatrixKANLinear
+from .model import KAN, build_kan
+from .onnx_export import export_onnx
 from .symbolic import SymbolicFitter
 from .trainer import Trainer
-from .onnx_export import export_onnx
 
 __all__ = [
     "KAN",

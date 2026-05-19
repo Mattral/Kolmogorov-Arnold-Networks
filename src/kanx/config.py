@@ -9,18 +9,18 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import yaml
 
 
 @dataclass
 class ModelConfig:
-    layers: List[int]
+    layers: list[int]
     grid_size: int = 5
     spline_order: int = 3
     base_activation: str = "silu"
-    grid_range: Tuple[float, float] = (-1.0, 1.0)
+    grid_range: tuple[float, float] = (-1.0, 1.0)
     regularization_factor: float = 0.0
 
 
@@ -49,7 +49,7 @@ class KanxConfig:
     model: ModelConfig
     training: TrainingConfig = field(default_factory=TrainingConfig)
     checkpoint: CheckpointConfig = field(default_factory=CheckpointConfig)
-    raw: Dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
 
 # ----------------------------------------------------------------------------
@@ -62,12 +62,12 @@ def load_config(path: str) -> KanxConfig:
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"Config file not found: {path}")
-    with open(path, "r") as f:
+    with open(path) as f:
         raw = yaml.safe_load(f) or {}
     return validate_config(raw)
 
 
-def validate_config(raw: Dict[str, Any]) -> KanxConfig:
+def validate_config(raw: dict[str, Any]) -> KanxConfig:
     if not isinstance(raw, dict):
         raise ValueError("Config root must be a mapping")
 

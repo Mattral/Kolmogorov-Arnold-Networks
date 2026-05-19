@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -14,13 +13,13 @@ class KANTensorBoardCallback(tf.keras.callbacks.Callback):
         self,
         log_dir: str = "logs/kanx",
         histogram_freq: int = 5,
-        sample_batch: Optional[tf.Tensor] = None,
+        sample_batch: tf.Tensor | None = None,
     ) -> None:
         super().__init__()
         self.log_dir = log_dir
         self.histogram_freq = histogram_freq
         self.sample_batch = sample_batch
-        self._writer: Optional[tf.summary.SummaryWriter] = None
+        self._writer: tf.summary.SummaryWriter | None = None
 
     def on_train_begin(self, logs=None):
         self._writer = tf.summary.create_file_writer(self.log_dir)

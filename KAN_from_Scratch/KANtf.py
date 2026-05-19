@@ -1,8 +1,8 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
-from tensorflow.keras.regularizers import l2
 from tensorflow.keras.models import Model
-import numpy as np
+from tensorflow.keras.regularizers import l2
 
 
 class KANLinear(Layer):
@@ -17,7 +17,7 @@ class KANLinear(Layer):
         grid_range=(-1, 1),
         **kwargs,
     ):
-        super(KANLinear, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.in_features = in_features
         self.out_features = out_features
         self.grid_size = grid_size
@@ -226,7 +226,7 @@ def B_batch_tf(x, grid, k=3, extend=True):
 
 class KAN(tf.keras.models.Sequential):
     def __init__(self, layers_configurations, **kwargs):
-        super(KAN, self).__init__()
+        super().__init__()
         for layer_config in layers_configurations:
             self.add(KANLinear(**layer_config, **kwargs))
 

@@ -1,7 +1,7 @@
 """Tests for MatrixKAN GPU-optimized layer."""
 import pytest
 import torch
-import numpy as np
+
 from kanx.torch.layers import KANLinear
 from kanx.torch.matrix_kan import MatrixKAN, MatrixKANLinear
 
@@ -35,7 +35,7 @@ class TestMatrixKANNumericalAgreement:
         # Create two identical-seed models
         torch.manual_seed(42)
         matrix_layer = MatrixKANLinear(8, 4, grid_size=5, spline_order=3)
-        
+
         torch.manual_seed(42)
         kan_layer = KANLinear(8, 4, grid_size=5, spline_order=3)
 
@@ -58,14 +58,14 @@ class TestMatrixKANNumericalAgreement:
 
         torch.manual_seed(42)
         matrix_model = MatrixKAN([4, 8, 1])
-        
+
         torch.manual_seed(42)
         # Build equivalent standard model
         kan_model = torch.nn.Sequential(
             KANLinear(4, 8),
             KANLinear(8, 1),
         )
-        
+
         # Copy weights
         with torch.no_grad():
             for m, k in zip(matrix_model.modules(), kan_model.modules()):
@@ -100,24 +100,24 @@ class TestMatrixKANGPU:
         This test is indicative; actual speedup depends on hardware.
         """
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+
         matrix_layer = MatrixKANLinear(32, 32, grid_size=5).to(device)
         kan_layer = KANLinear(32, 32, grid_size=5).to(device)
-        
+
         # Copy weights for fair comparison
         with torch.no_grad():
             kan_layer.base_weight.data = matrix_layer.base_weight.data.clone()
             kan_layer.spline_weight.data = matrix_layer.spline_weight.data.clone()
             kan_layer.grid.data = matrix_layer.grid.data.clone()
-        
+
         x = torch.randn(256, 32, device=device)
         n_runs = 100
-        
+
         # Warmup
         for _ in range(10):
             _ = matrix_layer(x)
             _ = kan_layer(x)
-        
+
         # Time MatrixKAN
         if device == "cuda":
             torch.cuda.synchronize()
@@ -129,7 +129,7 @@ class TestMatrixKANGPU:
         t1.record()
         torch.cuda.synchronize() if device == "cuda" else None
         matrix_time = t0.elapsed_time(t1) if device == "cuda" else None
-        
+
         # Time standard KAN
         if device == "cuda":
             torch.cuda.synchronize()
@@ -141,7 +141,7 @@ class TestMatrixKANGPU:
         t3.record()
         torch.cuda.synchronize() if device == "cuda" else None
         kan_time = t2.elapsed_time(t3) if device == "cuda" else None
-        
+
         if matrix_time is not None and kan_time is not None:
             speedup = kan_time / matrix_time
             # MatrixKAN should be at least comparable (>=1x), ideally 1.5-2x faster
@@ -155,14 +155,14 @@ class TestMatrixKANGridUpdate:
         """Grid update from samples modifies grid values."""
         model = MatrixKAN([4, 8, 1])
         x = torch.randn(128, 4)
-        
+
         # Get initial grid
         initial_grid = model[0].grid.data.clone()
-        
+
         # Update grid
         model.update_grid_from_samples(x)
         new_grid = model[0].grid.data
-        
+
         # Check that grid changed
         assert not torch.allclose(initial_grid, new_grid), "Grid should change after update"
 
@@ -170,11 +170,11 @@ class TestMatrixKANGridUpdate:
         """Grid update preserves grid shape."""
         model = MatrixKAN([6, 16, 1])
         x = torch.randn(100, 6)
-        
+
         initial_shape = model[0].grid.shape
         model.update_grid_from_samples(x)
         new_shape = model[0].grid.shape
-        
+
         assert initial_shape == new_shape, "Grid shape should not change"
 
     def test_matrix_kan_forward_after_update(self):
@@ -182,10 +182,10 @@ class TestMatrixKANGridUpdate:
         model = MatrixKAN([4, 8, 1])
         x_train = torch.randn(100, 4)
         x_test = torch.randn(32, 4)
-        
+
         model.update_grid_from_samples(x_train)
         y = model(x_test)
-        
+
         assert y.shape == (32, 1)
         assert not torch.isnan(y).any()
 
@@ -197,13 +197,13 @@ class TestMatrixKANONNXExport:
         """MatrixKAN exports to ONNX format."""
         pytest.importorskip("onnx")
         import tempfile
-        
+
         model = MatrixKAN([2, 8, 1])
         x = torch.randn(1, 2)
-        
+
         with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as f:
             onnx_path = f.name
-        
+
         try:
             torch.onnx.export(
                 model,

@@ -6,13 +6,13 @@ the load / save semantics are consistent across surfaces.
 from __future__ import annotations
 
 import os
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 import tensorflow as tf
 
 from .layers import KANLinear  # noqa: F401  (registers custom object on import)
-from .model import KAN          # noqa: F401  (registers custom object on import)
+from .model import KAN  # noqa: F401  (registers custom object on import)
 from .utils import get_logger
 
 _LOG = get_logger("kanx.inference")
@@ -59,7 +59,7 @@ def predict(
     model: tf.keras.Model,
     x: ArrayLike,
     *,
-    batch_size: Optional[int] = None,
+    batch_size: int | None = None,
 ) -> np.ndarray:
     """Run inference. Returns a NumPy array of shape ``(batch, out_features)``.
 

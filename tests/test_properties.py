@@ -7,13 +7,12 @@ the hand-picked examples in the rest of the suite.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 import tensorflow as tf
-from hypothesis import HealthCheck, given, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from kanx import KAN
 from kanx.layers import KANLinear, b_spline_basis, extend_grid
-
 
 _settings = settings(
     max_examples=15,

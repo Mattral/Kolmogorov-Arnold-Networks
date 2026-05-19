@@ -11,7 +11,6 @@ os.environ.setdefault("KANX_CHECKPOINT", "/tmp/__nonexistent__.keras")
 
 from api.app import app  # noqa: E402
 
-
 client = TestClient(app)
 
 

@@ -11,22 +11,20 @@ Usage::
 """
 from __future__ import annotations
 
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional
 
 import numpy as np
-import time
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from .model import KAN
-
 
 @dataclass
 class TrainHistory:
-    loss: List[float] = field(default_factory=list)
-    val_loss: List[float] = field(default_factory=list)
+    loss: list[float] = field(default_factory=list)
+    val_loss: list[float] = field(default_factory=list)
 
 
 class Trainer:
@@ -45,8 +43,8 @@ class Trainer:
     def __init__(
         self,
         model: nn.Module,
-        device: Optional[str | torch.device] = None,
-        loss_fn: Optional[Callable] = None,
+        device: str | torch.device | None = None,
+        loss_fn: Callable | None = None,
     ) -> None:
         self.model = model
         self.device = torch.device(device) if device is not None else (

@@ -14,7 +14,6 @@ both input and output to allow any batch size at runtime).
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 import torch
 from torch import nn
@@ -23,7 +22,7 @@ from torch import nn
 def export_onnx(
     model: nn.Module,
     path: str,
-    sample_input: Optional[torch.Tensor] = None,
+    sample_input: torch.Tensor | None = None,
     *,
     opset_version: int = 17,
     input_name: str = "input",

@@ -14,10 +14,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import platform
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from statistics import mean, stdev
@@ -25,7 +24,8 @@ from statistics import mean, stdev
 import numpy as np
 import tensorflow as tf
 
-from kanx import KAN as TF_KAN, set_global_seed
+from kanx import KAN as TF_KAN
+from kanx import set_global_seed
 from kanx.datasets import (
     load_california_housing,
     load_concrete_strength,

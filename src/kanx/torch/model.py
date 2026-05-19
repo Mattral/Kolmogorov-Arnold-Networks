@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, List, Sequence, Union
+from typing import Union
 
-import yaml
-import torch
 import huggingface_hub
+import torch
+import yaml
 from huggingface_hub import HfApi
 from torch import nn
 
@@ -34,7 +35,7 @@ class KAN(nn.Sequential):
         base_activation: str = "silu",
         grid_range=(-1.0, 1.0),
     ) -> None:
-        modules: List[nn.Module] = []
+        modules: list[nn.Module] = []
         defaults = dict(
             grid_size=grid_size,
             spline_order=spline_order,
@@ -132,14 +133,14 @@ class KAN(nn.Sequential):
             margin: margin applied to grid boundaries.
         """
         xt = _as_tensor(x)
-        
+
         kan_layers = [layer for layer in self.modules() if isinstance(layer, KANLinear)]
         if not kan_layers:
             return
-        
+
         # Update first layer from raw input
         kan_layers[0].update_grid_from_samples(xt, margin=margin)
-        
+
         # Update remaining layers by propagating through prior layers
         with torch.no_grad():
             current_x = xt
@@ -163,17 +164,17 @@ class KAN(nn.Sequential):
         return path
 
     @classmethod
-    def load(cls, path: str, map_location="cpu") -> "KAN":
+    def load(cls, path: str, map_location="cpu") -> KAN:
         ckpt = torch.load(path, map_location=map_location, weights_only=False)
         model = cls(ckpt["layers_spec"], **ckpt["defaults"])
         model.load_state_dict(ckpt["state_dict"])
         return model
 
     @classmethod
-    def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> "KAN":
+    def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> KAN:
         model_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="model.pt", revision=revision)
         config_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         model_cfg = config.get("model", {})

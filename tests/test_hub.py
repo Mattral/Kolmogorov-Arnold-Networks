@@ -1,8 +1,8 @@
-import yaml
 from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+import yaml
 
 from kanx import KAN
 
@@ -46,6 +46,7 @@ def test_from_pretrained_loads_weights(tmp_path):
 def test_from_pretrained_torch(tmp_path):
     try:
         import torch
+
         from kanx.torch import KAN as TorchKAN
     except ImportError:
         return
