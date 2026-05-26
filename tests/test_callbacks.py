@@ -37,7 +37,7 @@ def test_tensorboard_callback_creates_log_dir(tmp_path):
 
 def test_tensorboard_pytorch_creates_log_dir(tmp_path):
     try:
-        import torch
+        import torch # noqa: F401
 
         from kanx.torch import KAN as TorchKAN
     except ImportError:
@@ -48,7 +48,7 @@ def test_tensorboard_pytorch_creates_log_dir(tmp_path):
 
     model = TorchKAN([2, 8, 1])
     log_dir = tmp_path / "logs"
-    trainer = model.fit(
+    trainer = model.fit( # noqa: F841
         X,
         y,
         epochs=2,
@@ -57,7 +57,7 @@ def test_tensorboard_pytorch_creates_log_dir(tmp_path):
         tensorboard=True,
         log_dir=str(log_dir),
         verbose=0,
-    ) # noqa: F841
+    )
 
     event_files = list(Path(log_dir).glob("**/events.out.tfevents.*"))
     assert Path(log_dir).exists()
