@@ -4,7 +4,6 @@ from __future__ import annotations
 import tempfile
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Union
 
 import huggingface_hub
 import torch
@@ -124,10 +123,10 @@ class KAN(nn.Sequential):
 
     def update_grid_from_samples(self, x, margin: float = 0.01) -> None:
         """Update grids on all layers from input samples.
-        
+
         For the first layer, update grid directly from input x.
         For subsequent layers, propagate x through prior layers.
-        
+
         Args:
             x: input data (batch, in_features); can be numpy array, list, or tensor.
             margin: margin applied to grid boundaries.

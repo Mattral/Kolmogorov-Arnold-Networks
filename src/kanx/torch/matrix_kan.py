@@ -29,12 +29,12 @@ def extend_grid_matrix(grid: torch.Tensor, k: int) -> torch.Tensor:
 
 def build_recurrence_matrix_batch(grid_ext: torch.Tensor, k: int, order: int) -> torch.Tensor:
     """Precompute recurrence matrix for one recursion level.
-    
+
     Args:
         grid_ext: (in_features, num_grid_points)
         k: recursion level (0..spline_order)
         order: spline polynomial order
-    
+
     Returns:
         recurrence matrix of shape (in_features, num_grid_points, num_grid_points)
     """
@@ -71,16 +71,16 @@ def build_recurrence_matrix_batch(grid_ext: torch.Tensor, k: int, order: int) ->
 
 def b_spline_basis_matrix(x: torch.Tensor, grid_ext: torch.Tensor, spline_order: int) -> torch.Tensor:
     """Compute B-spline basis via batched matrix multiply (no recursion).
-    
+
     Cox-de Boor recursion: B_i^0(x) = [grid_i <= x < grid_{i+1}]
                            B_i^k(x) = (x - grid_i)/(grid_{i+k} - grid_i) * B_i^{k-1}(x)
                                     + (grid_{i+k+1} - x)/(grid_{i+k+1} - grid_{i+1}) * B_{i+1}^{k-1}(x)
-    
+
     Args:
         x: (batch, in_features)
         grid_ext: (in_features, num_grid_points)
         spline_order: polynomial degree
-    
+
     Returns:
         (batch, in_features, num_basis_functions)
     """
@@ -178,10 +178,10 @@ class MatrixKANLinear(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute KAN forward pass using vectorized B-spline basis.
-        
+
         Args:
             x: (batch, in_features)
-        
+
         Returns:
             (batch, out_features)
         """
@@ -201,7 +201,7 @@ class MatrixKANLinear(nn.Module):
 
     def update_grid_from_samples(self, x: torch.Tensor, margin: float = 0.01) -> None:
         """Adaptive grid update from data samples (pykan parity).
-        
+
         Args:
             x: (batch, in_features) — samples to fit grid to
             margin: interpolation between uniform (0) and sample-based (1) grid
@@ -244,7 +244,7 @@ class MatrixKANLinear(nn.Module):
 
     def get_spline_weight_at_grid_points(self) -> torch.Tensor:
         """Return spline weights for symbolic regression hooks.
-        
+
         Returns:
             (in_features, out_features, num_basis)
         """
@@ -287,7 +287,7 @@ class MatrixKAN(nn.Sequential):
 
     def update_grid_from_samples(self, x: torch.Tensor, margin: float = 0.01) -> None:
         """Update grid on layers based on data.
-        
+
         For the first layer, update grid directly from input x.
         For subsequent layers, propagate x through prior layers to get activations.
         """

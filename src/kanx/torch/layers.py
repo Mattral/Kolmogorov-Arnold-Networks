@@ -135,11 +135,11 @@ class KANLinear(nn.Module):
 
     def update_grid_from_samples(self, x: torch.Tensor, margin: float = 0.01) -> None:
         """Adaptive grid update from data samples (pykan parity).
-        
+
         Recomputes the per-feature grid using quantiles of the input data,
         then interpolates between the uniform grid and the sample-based grid
         using grid_eps as the interpolation parameter.
-        
+
         Args:
             x: (batch, in_features) input tensor to fit grid to.
             margin: margin applied to grid boundaries (not used in current implementation).

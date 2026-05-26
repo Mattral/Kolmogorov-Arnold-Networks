@@ -9,7 +9,6 @@ from __future__ import annotations
 import tempfile
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Union
 
 import huggingface_hub
 import tensorflow as tf
@@ -101,10 +100,10 @@ class KAN(tf.keras.Sequential):
 
     def update_grid_from_samples(self, x: tf.Tensor, margin: float = 0.01) -> None:
         """Update grids on all layers from input samples.
-        
+
         For the first layer, update grid directly from input x.
         For subsequent layers, propagate x through prior layers.
-        
+
         Args:
             x: (batch, in_features) input tensor to fit grid to.
             margin: margin applied to grid boundaries.
