@@ -54,8 +54,8 @@ def build_recurrence_matrix_batch(grid_ext: torch.Tensor, k: int, order: int) ->
     M = torch.zeros(batch_size, L_in, n_grid, device=grid_ext.device, dtype=grid_ext.dtype)
 
     for i in range(L_in):
-        g_left = grid_ext[:, i : i + order]
-        g_right = grid_ext[:, i + 1 : i + order + 1]
+        g_left = grid_ext[:, i : i + order] # noqa: F841
+        g_right = grid_ext[:, i + 1 : i + order + 1] # noqa: F841
 
         denom_l = grid_ext[:, i + order] - grid_ext[:, i]
         denom_r = grid_ext[:, i + order + 1] - grid_ext[:, i + 1]
@@ -85,7 +85,7 @@ def b_spline_basis_matrix(x: torch.Tensor, grid_ext: torch.Tensor, spline_order:
         (batch, in_features, num_basis_functions)
     """
     batch_size, in_features = x.shape
-    num_grid = grid_ext.shape[1]
+    num_grid = grid_ext.shape[1] # noqa: F841
 
     # Order-0 basis: piecewise constant indicator
     # For each interval [grid_i, grid_{i+1}), basis_i = 1 if x in interval, else 0
@@ -206,7 +206,7 @@ class MatrixKANLinear(nn.Module):
             x: (batch, in_features) — samples to fit grid to
             margin: interpolation between uniform (0) and sample-based (1) grid
         """
-        batch_size = x.shape[0]
+        batch_size = x.shape[0] # noqa: F841
 
         with torch.no_grad():
             # Compute quantile-based grid for each feature

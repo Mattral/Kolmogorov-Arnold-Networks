@@ -149,7 +149,7 @@ class TestGridUpdateImprovement:
         # Model with grid update
         model1 = TF_KAN([4, 16, 8, 1])
         model1.compile(optimizer='adam', loss='mse')
-        hist1_before = model1.evaluate(X_train, y_train, verbose=0)
+        hist1_before = model1.evaluate(X_train, y_train, verbose=0) # noqa: F841
 
         # Train 5 epochs
         model1.fit(X_train, y_train, epochs=5, verbose=0)
