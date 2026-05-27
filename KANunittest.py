@@ -3,9 +3,9 @@
 import unittest
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras import Model
 
 from KANtf import KANLinear, KAN, extend_grid_tf, B_batch_tf
+
 
 class TestKANLinear(unittest.TestCase):
     def test_initialization(self):
@@ -15,13 +15,18 @@ class TestKANLinear(unittest.TestCase):
         grid_size = 5
         spline_order = 3
         layer = KANLinear(in_features, out_features, grid_size, spline_order)
-        
+
         self.assertEqual(layer.in_features, in_features)
         self.assertEqual(layer.out_features, out_features)
         self.assertEqual(layer.grid_size, grid_size)
         self.assertEqual(layer.spline_order, spline_order)
         self.assertEqual(layer.base_weight.shape, (in_features, out_features))
-        self.assertEqual(layer.spline_weight.shape, (in_features, out_features, grid_size + spline_order - 1))
+        # Spline weight shape: (in_features, out_features, grid_size + spline_order)
+        # When using extended grid, final num basis functions = grid_size + spline_order
+        self.assertEqual(
+            layer.spline_weight.shape,
+            (in_features, out_features, grid_size + spline_order),
+        )
 
     def test_forward_pass(self):
         """Test the forward pass computation of KANLinear."""
@@ -31,6 +36,7 @@ class TestKANLinear(unittest.TestCase):
         input_tensor = tf.random.normal([10, 10])  # batch size of 10, 10 features
         output = layer(input_tensor)
         self.assertEqual(output.shape, (10, 5))
+
 
 class TestBSplineFunctions(unittest.TestCase):
     def test_extend_grid(self):
@@ -44,22 +50,27 @@ class TestBSplineFunctions(unittest.TestCase):
         """Test B-spline basis computation for known inputs and grid."""
         x = tf.constant([[0.5], [1.5], [2.5]])  # Points to evaluate the spline
         grid = tf.constant([0.0, 1.0, 2.0, 3.0])  # Correct one-dimensional grid
-        # Ensure grid stays one-dimensional
+        # B_batch_tf with extend=True and k=2:
+        # - Original grid: 4 points
+        # - Extended grid: 8 points (extend by 2 on each side)
+        # - Order 0 basis: 7 functions
+        # - Order 1 basis: 6 functions
         b_spline_values = B_batch_tf(x, grid, k=2)
-        expected_shape = (3, 4)  # or whatever your expected shape is
+        expected_shape = (3, 6)  # (num_samples, num_basis_functions)
         self.assertEqual(b_spline_values.shape, expected_shape)
 
-        
+
 class TestKANModel(unittest.TestCase):
     def test_model_construction(self):
         """Test the construction of the KAN model."""
         layers_config = [
-            {'in_features': 10, 'out_features': 5},
-            {'in_features': 5, 'out_features': 3}
+            {"in_features": 10, "out_features": 5},
+            {"in_features": 5, "out_features": 3},
         ]
         model = KAN(layers_configurations=layers_config)
         self.assertIsInstance(model, tf.keras.models.Sequential)
         self.assertEqual(len(model.layers), 2)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
