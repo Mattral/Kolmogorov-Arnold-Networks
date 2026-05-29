@@ -37,6 +37,12 @@ jobs:
       - name: Format check (black)
         run: black --check src tests api benchmarks examples || true
 
+      - name: Start API server
+        run: |
+          uvicorn api.app:app --port 8001 --host 0.0.0.0 &
+          # give it a few seconds to boot
+          sleep 5
+
       - name: Run tests with coverage
         env:
           TF_CPP_MIN_LOG_LEVEL: "3"
