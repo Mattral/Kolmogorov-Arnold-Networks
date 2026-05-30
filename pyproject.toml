@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kanx"
+version = "0.1.6"
+description = "Production-grade Kolmogorov-Arnold Networks — TensorFlow + PyTorch + ONNX."
+authors = [{ name = "kanx contributors" }]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["kolmogorov-arnold", "kan", "neural-network", "tensorflow", "pytorch", "onnx", "ml-infra"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+dependencies = [
+  "tensorflow>=2.16,<3",
+  "numpy>=1.23",
+  "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+api   = ["fastapi>=0.100", "uvicorn[standard]>=0.23", "pydantic>=2"]
+torch = ["torch>=2.0"]
+onnx  = ["tf2onnx>=1.17", "onnx>=1.16", "onnxruntime>=1.18"]
+dev   = [
+  "pytest>=7",
+  "pytest-cov>=4",
+  "pytest-benchmark>=4",
+  "hypothesis>=6",
+  "httpx>=0.25",
+  "ruff>=0.1",
+  "black>=23",
+  "build>=1",
+  "twine>=4",
+]
+docs  = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
+all   = ["kanx[api,torch,onnx,dev,docs]"]
+
+[project.scripts]
+kanx = "kanx.__main__:main"
+
+[project.urls]
+Homepage      = "https://github.com/Mattral/KANX"
+Documentation = "https://mattral.github.io/KANX/"
+Repository    = "https://github.com/Mattral/KANX"
+Issues        = "https://github.com/Mattral/KANX/issues"
+Changelog     = "https://github.com/Mattral/KANX/blob/main/CHANGELOG.md"
+"Colab Notebook" = "https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb"
+"Source Code"    = "https://github.com/Mattral/KANX/tree/main/src/kanx"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::PendingDeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]   # line-length handled by `line-length` above
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.coverage.run]
+source = ["src/kanx"]
+omit = ["src/kanx/__main__.py"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+]

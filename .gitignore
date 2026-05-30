@@ -1,11 +1,17 @@
+# --------------------------------------------------------------------------
+# Python
+# --------------------------------------------------------------------------
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+*.py[cod]
+*$py.class
+*.so
+
+# --------------------------------------------------------------------------
+# Distribution / packaging
+# --------------------------------------------------------------------------
 build/
-develop-eggs/
 dist/
+develop-eggs/
 downloads/
 eggs/
 .eggs/
@@ -16,9 +22,34 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+.installed.cfg
 MANIFEST
+
+# --------------------------------------------------------------------------
+# Test / coverage / benchmark artefacts  (do NOT commit these)
+# --------------------------------------------------------------------------
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.benchmarks/
+.pytest_cache/
+.hypothesis/
+.tox/
+.nox/
+test_reports/
+.cache
+
+# --------------------------------------------------------------------------
+# Documentation build output
+# --------------------------------------------------------------------------
+site/
+docs/_build/
+
+# --------------------------------------------------------------------------
+# Environment / IDE
+# --------------------------------------------------------------------------
 .env
 .venv
 env/
@@ -26,8 +57,30 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.DS_Store
 .idea/
 .vscode/
 *.swp
 *.swo
+.DS_Store
+
+# --------------------------------------------------------------------------
+# Model checkpoints (large binaries — don't commit to source control)
+# --------------------------------------------------------------------------
+checkpoints/
+*.keras
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# --------------------------------------------------------------------------
+# Agent / orchestration artefacts (must never be in a public repo)
+# --------------------------------------------------------------------------
+.emergent/
+memory/
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials

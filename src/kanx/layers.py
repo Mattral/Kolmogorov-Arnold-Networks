@@ -1,0 +1,258 @@
+"""Spline + custom layers for kanx.
+
+This module implements:
+
+* `extend_grid`     — pads a uniform grid by `spline_order` knots on each side
+                      following the standard pykan convention so that the
+                      number of B-spline basis functions of degree `k`
+                      equals `grid_size + k`.
+* `b_spline_basis`  — vectorized Cox-de Boor recursion that evaluates the
+                      full basis matrix for a batch of inputs (no per-feature
+                      Python loop, no per-sample loop).
+* `KANLinear`       — drop-in `tf.keras.layers.Layer` implementing one KAN
+                      edge bank: a SiLU-residual base + B-spline edge
+                      activations (Liu et al., 2024, eq. 2.10).
+
+Design notes
+------------
+* The grid is **per-input-feature** (shape `(in_features, grid_size + 1)`).
+  Per-feature grids are required for adaptive grid updates and match the
+  reference pykan implementation.
+* `spline_order` is the polynomial *degree* (k = 3 → cubic B-splines).
+* The base path applies `silu` to the input *before* multiplying by
+  `base_weight`, matching pykan's `base_activation` design.
+* The layer does **not** apply a non-linearity to its output: the B-spline
+  edge function is itself a learned non-linearity.
+"""
+from __future__ import annotations
+
+from typing import Tuple
+
+import tensorflow as tf
+from tensorflow.keras import initializers, regularizers
+from tensorflow.keras.layers import Layer
+
+
+# ----------------------------------------------------------------------------
+# B-spline primitives
+# ----------------------------------------------------------------------------
+def extend_grid(grid: tf.Tensor, k: int) -> tf.Tensor:
+    """Symmetrically extend a uniform per-feature grid by `k` knots on each side.
+
+    Args:
+        grid: float tensor of shape ``(in_features, grid_size + 1)``.
+        k:    spline polynomial degree (number of knots to add on each side).
+
+    Returns:
+        Tensor of shape ``(in_features, grid_size + 1 + 2k)``.
+    """
+    if k < 0:
+        raise ValueError(f"k must be non-negative, got {k}")
+    if k == 0:
+        return grid
+
+    dtype = grid.dtype
+    n = tf.cast(tf.shape(grid)[1] - 1, dtype)
+    # Uniform step size per feature (works for non-uniform grids too as long
+    # as the boundary spacing is representative).
+    h = (grid[:, -1:] - grid[:, :1]) / n
+
+    left_offsets = tf.cast(tf.range(-k, 0), dtype)[None, :]
+    right_offsets = tf.cast(tf.range(1, k + 1), dtype)[None, :]
+
+    left = grid[:, :1] + left_offsets * h
+    right = grid[:, -1:] + right_offsets * h
+    return tf.concat([left, grid, right], axis=1)
+
+
+def b_spline_basis(x: tf.Tensor, grid_ext: tf.Tensor, k: int) -> tf.Tensor:
+    """Evaluate the B-spline basis of degree ``k`` for a batch of inputs.
+
+    Uses the Cox-de Boor recursion in a fully vectorized fashion (no Python
+    loop over features or batch).
+
+    Args:
+        x:        ``(batch, in_features)`` input tensor.
+        grid_ext: ``(in_features, G_ext)`` already-extended grid.
+        k:        spline degree (k=3 → cubic).
+
+    Returns:
+        ``(batch, in_features, G_ext - k - 1)`` basis tensor. For the standard
+        case ``G_ext = grid_size + 1 + 2k`` this equals
+        ``(batch, in_features, grid_size + k)`` — i.e. ``grid_size + k`` basis
+        functions per feature, matching the pykan convention.
+    """
+    if k < 0:
+        raise ValueError(f"k must be non-negative, got {k}")
+
+    x_e = tf.expand_dims(x, -1)            # (B, F, 1)
+    g_e = tf.expand_dims(grid_ext, 0)      # (1, F, G_ext)
+
+    # Order-0 basis (piecewise constant).
+    basis = tf.cast(
+        (x_e >= g_e[..., :-1]) & (x_e < g_e[..., 1:]),
+        x.dtype,
+    )                                       # (B, F, G_ext - 1)
+
+    for p in range(1, k + 1):
+        # After this iteration, basis length L_new = current_L - 1.
+        L = basis.shape[-1] - 1
+        g_l = g_e[..., :L]                  # g[i]
+        g_lp = g_e[..., p : p + L]          # g[i+p]
+        g_r = g_e[..., 1 : L + 1]           # g[i+1]
+        g_rp = g_e[..., p + 1 : p + 1 + L]  # g[i+p+1]
+
+        denom_l = g_lp - g_l
+        denom_r = g_rp - g_r
+        # Stable division: replace 0 denominators with 1 (numerator is also 0).
+        denom_l = tf.where(tf.equal(denom_l, 0), tf.ones_like(denom_l), denom_l)
+        denom_r = tf.where(tf.equal(denom_r, 0), tf.ones_like(denom_r), denom_r)
+
+        left_w = (x_e - g_l) / denom_l
+        right_w = (g_rp - x_e) / denom_r
+
+        basis = left_w * basis[..., :L] + right_w * basis[..., 1 : L + 1]
+
+    return basis
+
+
+# ----------------------------------------------------------------------------
+# KAN edge bank
+# ----------------------------------------------------------------------------
+@tf.keras.utils.register_keras_serializable(package="kanx")
+class KANLinear(Layer):
+    """A single KAN layer (edge bank) with SiLU residual + B-spline edges.
+
+    Mathematically::
+
+        out(x) = silu(x) @ W_base  +  Σ_{i,j} spline_w[i, o, j] · B_j(x_i)
+
+    Args:
+        in_features:           input dimension.
+        out_features:          output dimension.
+        grid_size:             number of grid intervals (default 5).
+        spline_order:          spline polynomial degree (default 3).
+        base_activation:       activation applied to the base path (default
+                               ``"silu"``).
+        grid_range:            ``(low, high)`` of the initial uniform grid.
+        scale_noise:           std of noise used to initialize spline weights.
+        scale_base:            scale of the base-path Glorot init.
+        regularization_factor: L2 regularization strength (0 disables).
+        trainable_grid:        whether the grid points are trainable.
+    """
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        grid_size: int = 5,
+        spline_order: int = 3,
+        base_activation: str = "silu",
+        grid_range: Tuple[float, float] = (-1.0, 1.0),
+        scale_noise: float = 0.1,
+        scale_base: float = 1.0,
+        regularization_factor: float = 0.0,
+        trainable_grid: bool = False,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        if in_features <= 0 or out_features <= 0:
+            raise ValueError("in_features and out_features must be positive integers")
+        if grid_size <= 0:
+            raise ValueError("grid_size must be a positive integer")
+        if spline_order < 1:
+            raise ValueError("spline_order must be >= 1")
+        if grid_range[0] >= grid_range[1]:
+            raise ValueError("grid_range must be (low, high) with low < high")
+
+        self.in_features = int(in_features)
+        self.out_features = int(out_features)
+        self.grid_size = int(grid_size)
+        self.spline_order = int(spline_order)
+        self.base_activation_name = base_activation
+        self.base_activation = tf.keras.activations.get(base_activation)
+        self.grid_range = tuple(grid_range)
+        self.scale_noise = float(scale_noise)
+        self.scale_base = float(scale_base)
+        self.regularization_factor = float(regularization_factor)
+        self.trainable_grid = bool(trainable_grid)
+
+        # Number of B-spline basis functions of degree `spline_order`.
+        self.num_basis = self.grid_size + self.spline_order
+
+    # ---- Keras lifecycle ----------------------------------------------------
+    def build(self, input_shape):
+        if input_shape[-1] is None or int(input_shape[-1]) != self.in_features:
+            raise ValueError(
+                f"Last dim of input ({input_shape[-1]}) must equal "
+                f"in_features ({self.in_features})"
+            )
+        reg = (
+            regularizers.l2(self.regularization_factor)
+            if self.regularization_factor > 0
+            else None
+        )
+
+        self.base_weight = self.add_weight(
+            name="base_weight",
+            shape=(self.in_features, self.out_features),
+            initializer=initializers.GlorotUniform(),
+            regularizer=reg,
+            trainable=True,
+        )
+        # Small-noise init for spline weights so the layer starts close to
+        # the base path (this is critical for stable training of KANs).
+        self.spline_weight = self.add_weight(
+            name="spline_weight",
+            shape=(self.in_features, self.out_features, self.num_basis),
+            initializer=initializers.RandomNormal(stddev=self.scale_noise),
+            regularizer=reg,
+            trainable=True,
+        )
+
+        # Per-feature uniform grid of `grid_size + 1` knots.
+        import numpy as _np
+        low, high = self.grid_range
+        grid_init = _np.linspace(low, high, self.grid_size + 1, dtype=_np.float32)
+        grid_init = _np.tile(grid_init[None, :], (self.in_features, 1))
+        self.grid = self.add_weight(
+            name="grid",
+            shape=(self.in_features, self.grid_size + 1),
+            initializer=initializers.Constant(grid_init),
+            trainable=self.trainable_grid,
+        )
+        super().build(input_shape)
+
+    def call(self, inputs):
+        # Base residual path: silu(x) @ W_base   →   (B, out_features)
+        base_out = tf.matmul(self.base_activation(inputs), self.base_weight)
+
+        # Spline path
+        grid_ext = extend_grid(self.grid, self.spline_order)
+        basis = b_spline_basis(inputs, grid_ext, self.spline_order)
+        #   basis:        (B, F_in, num_basis)
+        #   spline_weight:(F_in, F_out, num_basis)
+        #   spline_out:   (B, F_out)
+        spline_out = tf.einsum("bik,iok->bo", basis, self.spline_weight)
+        return base_out + spline_out
+
+    def compute_output_shape(self, input_shape):
+        return tuple(input_shape[:-1]) + (self.out_features,)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "in_features": self.in_features,
+                "out_features": self.out_features,
+                "grid_size": self.grid_size,
+                "spline_order": self.spline_order,
+                "base_activation": self.base_activation_name,
+                "grid_range": list(self.grid_range),
+                "scale_noise": self.scale_noise,
+                "scale_base": self.scale_base,
+                "regularization_factor": self.regularization_factor,
+                "trainable_grid": self.trainable_grid,
+            }
+        )
+        return config
