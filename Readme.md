@@ -284,4 +284,4 @@ PRs welcome! See [`CONTRIBUTING.md`](CONTRIBUTING.md). Good places to start:
 [Apache 2.0](LICENSE). Use it. Ship it. Tell us when you do — we'd love to
 hear how kanx is being used in the wild.
 
-<p align="center">⭐ <strong>Star the repo</strong> if kanx saved you time.</p>
+<p align="center">⭐ <strong>Star the repo</strong> if kanx saved you time!</p>
