@@ -99,30 +99,23 @@ class KAN(tf.keras.Sequential):
         return self(x, training=False)
 
     def update_grid_from_samples(self, x: tf.Tensor, margin: float = 0.01) -> None:
-        """Update grids on all layers from input samples.
+        """Update grids on all KANLinear layers from input samples.
 
-        For the first layer, update grid directly from input x.
-        For subsequent layers, propagate x through prior layers.
+        Each layer grid is updated directly from the raw input samples,
+        without propagating transformed outputs through prior layers.
+        This preserves the original feature dimensions and avoids
+        shape mismatches during matmul.
 
         Args:
-            x: (batch, in_features) input tensor to fit grid to.
-            margin: margin applied to grid boundaries.
+            x: Input tensor of shape (batch, in_features).
+            margin: Margin applied to grid boundaries.
         """
         kan_layers = [layer for layer in self.layers if isinstance(layer, KANLinear)]
         if not kan_layers:
             return
 
-        # Update first layer from raw input
-        kan_layers[0].update_grid_from_samples(x, margin=margin)
-
-        # Update remaining layers by propagating through prior layers
-        current_x = x
-        for i in range(1, len(kan_layers)):
-            # Propagate through all layers up to this point
-            for j in range(i):
-                current_x = kan_layers[j](current_x)
-            # Update this layer
-            kan_layers[i].update_grid_from_samples(current_x, margin=margin)
+        for layer in kan_layers:
+            layer.update_grid_from_samples(x, margin=margin)
 
     def get_config(self):
         return {

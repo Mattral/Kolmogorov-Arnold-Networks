@@ -122,33 +122,25 @@ class KAN(nn.Sequential):
             self.train(was_training)
 
     def update_grid_from_samples(self, x, margin: float = 0.01) -> None:
-        """Update grids on all layers from input samples.
+        """Update grids on all KANLinear layers from input samples.
 
-        For the first layer, update grid directly from input x.
-        For subsequent layers, propagate x through prior layers.
+        Each layer grid is updated directly from the raw input samples,
+        without propagating transformed outputs through prior layers.
+        This preserves the original feature dimensions and avoids
+        shape mismatches during matmul.
 
         Args:
-            x: input data (batch, in_features); can be numpy array, list, or tensor.
-            margin: margin applied to grid boundaries.
+            x: Input data (batch, in_features); can be numpy array, list, or tensor.
+            margin: Margin applied to grid boundaries.
         """
         xt = _as_tensor(x)
-
         kan_layers = [layer for layer in self.modules() if isinstance(layer, KANLinear)]
         if not kan_layers:
             return
 
-        # Update first layer from raw input
-        kan_layers[0].update_grid_from_samples(xt, margin=margin)
-
-        # Update remaining layers by propagating through prior layers
         with torch.no_grad():
-            current_x = xt
-            for i in range(1, len(kan_layers)):
-                # Propagate through all layers up to this point
-                for j in range(i):
-                    current_x = kan_layers[j](current_x)
-                # Update this layer
-                kan_layers[i].update_grid_from_samples(current_x, margin=margin)
+            for layer in kan_layers:
+                layer.update_grid_from_samples(xt, margin=margin)
 
     def save(self, path: str) -> str:
         """Save state_dict + architecture spec to a single .pt file."""
