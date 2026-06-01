@@ -114,8 +114,11 @@ class KAN(tf.keras.Sequential):
         if not kan_layers:
             return
 
+        current_x = x
         for layer in kan_layers:
-            layer.update_grid_from_samples(x, margin=margin)
+            layer.update_grid_from_samples(current_x, margin=margin)
+            # propagate forward for next layer
+            current_x = layer(current_x)
 
     def get_config(self):
         return {
