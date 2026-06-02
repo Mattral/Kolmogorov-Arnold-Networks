@@ -91,3 +91,4 @@ Single source of truth for what's shipped and what's next.
 - **`save_best_only=True` + final-model fallback** — inference always works.
 - **Single-threaded BLAS in tests** — only way to keep TF+Torch hermetic in
   one process. Production code does not impose this.
+
