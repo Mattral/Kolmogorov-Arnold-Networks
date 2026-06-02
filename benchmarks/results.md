@@ -7,17 +7,17 @@
 - **Target.** `y = sin(π·x₁) + cos(2π·x₂)` — *deliberately smooth & separable*; this is the regime where KANs are theoretically optimal (Liu et al. 2024). **Real-world targets are not this smooth.**
 - **Data.** 4 096 train / 1 024 test, uniform on `[-1, 1]²`, seed=0.
 - **Training.** Adam(lr=1e-2), batch=128, **100 epochs** (fixed).
-- **Hardware.** aarch64 / Linux / Python 3.11.15 / TF 2.21.0, CPU.
+- **Hardware.** x86_64 / Linux / Python 3.12.1 / TF 2.21.0, CPU.
 
 ## Results
 
-| Model            | Params | Train (s) | Infer 4k (ms) | Train MSE | **Test MSE** |
-|------------------|------:|---------:|-------------:|---------:|-------------:|
-| KAN[2,16,1]      |   432 |    12.50 |       68.64 | 2.17e-05 | **2.14e-05** |
-| KAN[2,32,1]      |   864 |    16.62 |       25.52 | 4.50e-04 | **4.44e-04** |
-| MLP[2,32,1]      |   129 |     5.07 |        6.17 | 4.74e-01 | **4.61e-01** |
-| MLP[2,16,16,1]   |   337 |     5.46 |        4.08 | 1.44e-03 | **1.60e-03** |
-| MLP[2,64,64,1]   |  4417 |     6.00 |        5.74 | 4.76e-04 | **5.51e-04** |
+| Model            | Params | Train (s) | Infer 4k CPU (ms) | Infer 4k GPU (ms) | Train MSE | **Test MSE** |
+|------------------|------:|---------:|-----------------:|-----------------:|---------:|-------------:|
+| KAN[2,16,1]      |   432 |    10.34 |             43.59 | N/A | 2.16e-05 | **2.14e-05** |
+| KAN[2,32,1]      |   864 |    12.68 |             31.61 | N/A | 6.95e-05 | **6.75e-05** |
+| MLP[2,32,1]      |   129 |     5.19 |              5.74 | N/A | 4.74e-01 | **4.61e-01** |
+| MLP[2,16,16,1]   |   337 |     5.58 |              4.60 | N/A | 1.44e-03 | **1.60e-03** |
+| MLP[2,64,64,1]   |  4417 |     5.73 |              6.34 | N/A | 4.76e-04 | **5.51e-04** |
 
 ## What this benchmark honestly shows
 
