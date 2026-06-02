@@ -103,3 +103,5 @@ pip install "kanx[all]"
 ## License
 
 [Apache 2.0](https://github.com/Mattral/KANX/blob/main/LICENSE).
+
+
