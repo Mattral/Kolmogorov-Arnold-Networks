@@ -3,7 +3,7 @@ site_description: Production-grade Kolmogorov-Arnold Networks (TensorFlow + PyTo
 site_url: https://mattral.github.io/KANX/
 repo_url: https://github.com/Mattral/KANX
 repo_name: Mattral/KANX
-edit_uri: edit/main/documentations/
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -78,9 +78,18 @@ nav:
       - Deployment: deployment.md
       - Security: security.md
   - Reference:
+      - Documentation Index: reference/README.md
       - Benchmarks: benchmarks.md
       - Roadmap: roadmap.md
       - Changelog: changelog.md
+      - Philosophy: reference/philosophy.md
+      - Architecture: reference/architecture.md
+      - System Design: reference/system_design.md
+      - Build & Install: reference/build.md
+      - REST API: reference/api.md
+      - Testing: reference/testing.md
+      - Deployment: reference/deployment.md
+      - Security: reference/security.md
 
 extra:
   social:

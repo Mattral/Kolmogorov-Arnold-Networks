@@ -1,0 +1,25 @@
+cff-version: "1.2.0"
+message: "If you use KANX, please cite both this software and the KAN paper."
+type: software
+title: "KANX: Production-grade Kolmogorov-Arnold Networks"
+authors:
+  - family-names: "Myet"
+    given-names: "Min Htet"
+version: "0.1.6"
+doi: "10.5281/zenodo.20430883"
+repository-code: "https://github.com/Mattral/KANX"
+license: Apache-2.0
+keywords:
+  - kolmogorov-arnold
+  - kan
+  - neural-network
+  - tensorflow
+  - pytorch
+  - onnx
+preferred-citation: |
+  @article{liu2024kan,
+    title={KAN: Kolmogorov-Arnold Networks for symbolic regression},
+    author={Liu, Min and others},
+    journal={arXiv preprint arXiv:2404.19756},
+    year={2024}
+  }
