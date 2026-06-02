@@ -19,6 +19,7 @@ import os
 import platform
 import time
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -32,7 +33,8 @@ class Result:
     model: str
     params: int
     train_s: float
-    infer_ms_4k: float
+    infer_ms_4k_cpu: float
+    infer_ms_4k_gpu: Optional[float]
     train_mse: float
     test_mse: float
 
@@ -80,15 +82,32 @@ def fit_and_score(
     train_s = time.perf_counter() - t0
 
     n_inf = min(4096, X_test.shape[0])
+    # CPU inference latency (median over single forward)
     t1 = time.perf_counter()
     _ = model(X_test[:n_inf])
-    infer_ms = (time.perf_counter() - t1) * 1000.0
+    infer_ms_cpu = (time.perf_counter() - t1) * 1000.0
+
+    # GPU inference latency if GPU is available for TensorFlow
+    infer_ms_gpu = None
+    try:
+        gpus = tf.config.list_physical_devices("GPU")
+        if gpus:
+            with tf.device("/GPU:0"):
+                # force eager sync by converting output to numpy
+                for _ in range(10):
+                    _ = model(X_test[:n_inf])
+                t2 = time.perf_counter()
+                out = model(X_test[:n_inf]).numpy()
+                infer_ms_gpu = (time.perf_counter() - t2) * 1000.0
+    except Exception:
+        infer_ms_gpu = None
 
     return Result(
         model=name,
         params=n_params(model),
         train_s=round(train_s, 3),
-        infer_ms_4k=round(infer_ms, 3),
+        infer_ms_4k_cpu=round(infer_ms_cpu, 3),
+        infer_ms_4k_gpu=round(infer_ms_gpu, 3) if infer_ms_gpu is not None else None,
         train_mse=float(tf.reduce_mean((model(X)      - y     ) ** 2).numpy()),
         test_mse=float(tf.reduce_mean((model(X_test) - y_test) ** 2).numpy()),
     )
@@ -109,11 +128,12 @@ def write_results(rows: list[Result], path: str, *, epochs: int, mode: str):
                 f"Python {platform.python_version()} / TF {tf.__version__}, CPU.\n\n")
 
         f.write("## Results\n\n")
-        f.write("| Model            | Params | Train (s) | Infer 4k (ms) | Train MSE | **Test MSE** |\n")
-        f.write("|------------------|------:|---------:|-------------:|---------:|-------------:|\n")
+        f.write("| Model            | Params | Train (s) | Infer 4k CPU (ms) | Infer 4k GPU (ms) | Train MSE | **Test MSE** |\n")
+        f.write("|------------------|------:|---------:|-----------------:|-----------------:|---------:|-------------:|\n")
         for r in rows:
+            gpu_str = f"{r.infer_ms_4k_gpu:>17.2f}" if r.infer_ms_4k_gpu is not None else "N/A"
             f.write(f"| {r.model:<16} | {r.params:>5} | {r.train_s:>8.2f} | "
-                    f"{r.infer_ms_4k:>11.2f} | {r.train_mse:.2e} | **{r.test_mse:.2e}** |\n")
+                f"{r.infer_ms_4k_cpu:>17.2f} | {gpu_str} | {r.train_mse:.2e} | **{r.test_mse:.2e}** |\n")
 
         f.write("\n## What this benchmark honestly shows\n\n")
         f.write("- On a **smooth separable 2-D regression**, parameter-matched KAN and MLP "
