@@ -114,3 +114,4 @@ else:
 * `inference_ms` returned on every `/api/predict` response for client-side
   histogram metrics.
 * Roadmap (P1): Prometheus `/metrics` endpoint via `prometheus-fastapi-instrumentator`.
+
