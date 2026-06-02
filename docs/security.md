@@ -63,3 +63,4 @@ audit must add their own middleware.
 registry tokens). All configuration is via plain env vars. If you wire in
 S3-backed model loading later, fetch credentials via the cloud SDK's IAM
 chain — do not bake them into the image.
+
