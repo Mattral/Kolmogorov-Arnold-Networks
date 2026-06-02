@@ -97,3 +97,4 @@ out = sess.run(None, {"input": np.zeros((4, 2), dtype=np.float32)})
 - [Architecture](architecture.md) — how the package is laid out
 - [REST API](api.md) — full endpoint reference
 - [Deployment](deployment.md) — production rollouts
+
