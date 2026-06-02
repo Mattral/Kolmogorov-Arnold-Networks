@@ -93,6 +93,32 @@ class KAN(tf.keras.Sequential):
         """Tensor-in, tensor-out inference (no Keras progress bars / batching)."""
         return self(x, training=False)
 
+    def update_grid_from_samples(self, x: tf.Tensor, margin: float = 0.01) -> None:
+        """Update grids on all layers from input samples.
+        
+        For the first layer, update grid directly from input x.
+        For subsequent layers, propagate x through prior layers.
+        
+        Args:
+            x: (batch, in_features) input tensor to fit grid to.
+            margin: margin applied to grid boundaries.
+        """
+        kan_layers = [layer for layer in self.layers if isinstance(layer, KANLinear)]
+        if not kan_layers:
+            return
+        
+        # Update first layer from raw input
+        kan_layers[0].update_grid_from_samples(x, margin=margin)
+        
+        # Update remaining layers by propagating through prior layers
+        current_x = x
+        for i in range(1, len(kan_layers)):
+            # Propagate through all layers up to this point
+            for j in range(i):
+                current_x = kan_layers[j](current_x)
+            # Update this layer
+            kan_layers[i].update_grid_from_samples(current_x, margin=margin)
+
     def get_config(self):
         return {
             "layers": self._layers_spec,
