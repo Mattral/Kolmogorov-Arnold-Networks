@@ -26,6 +26,7 @@ from .inference import predict, load_model, save_model
 from .utils import set_global_seed, get_logger, fit_grid_to_data, check_input_range
 from .onnx_export import export_onnx_tf
 from .quickstart import quickstart
+from . import datasets
 
 __all__ = [
     "KAN",
@@ -48,6 +49,7 @@ __all__ = [
     "check_input_range",
     "export_onnx_tf",
     "quickstart",
+    "datasets",
 ]
 
 __version__ = "0.1.6"
