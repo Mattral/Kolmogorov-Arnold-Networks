@@ -115,3 +115,4 @@ deployments.
 * Pydantic `PredictRequest.x` is intentionally loose (`List[float] |
   List[List[float]]`) — strict shape checking happens inside the route so
   errors are precise.
+
