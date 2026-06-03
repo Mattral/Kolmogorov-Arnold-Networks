@@ -4,6 +4,10 @@ metadata:
   name: kanx-api
   labels:
     app: kanx
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
   selector:

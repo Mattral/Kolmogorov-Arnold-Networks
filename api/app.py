@@ -36,6 +36,8 @@ import tensorflow as tf  # noqa: F401  (ensures TF is initialised before model l
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from prometheus_client import Counter, Histogram
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from kanx import KAN, __version__
 from kanx.config import load_config
@@ -125,6 +127,28 @@ def _build_fresh_from_config(config_path: str) -> tf.keras.Model:
     return model
 
 
+kanx_inference_total = Counter(
+    "kanx_inference_total",
+    "Total successful inference requests handled by kanx.",
+    ["backend", "batch_size"],
+)
+kanx_inference_latency_seconds = Histogram(
+    "kanx_inference_latency_seconds",
+    "Inference latency for /api/predict in seconds.",
+    ["backend", "batch_size"],
+)
+
+
+def _bucket_batch_size(batch_size: int) -> str:
+    if batch_size <= 1:
+        return "1"
+    if batch_size <= 10:
+        return "2-10"
+    if batch_size <= 100:
+        return "11-100"
+    return "101+"
+
+
 def _initialise(checkpoint: str, config: str) -> str:
     """Try checkpoint, fall back to fresh model. Returns the source label."""
     if checkpoint and os.path.exists(checkpoint):
@@ -163,6 +187,7 @@ class LoadRequest(BaseModel):
 async def _lifespan(app_):
     src = _initialise(DEFAULT_CHECKPOINT, DEFAULT_CONFIG)
     print(f"[kanx-api] initialised from {src}", flush=True)
+    Instrumentator().instrument(app_).expose(app_, endpoint="/metrics")
     yield
 
 
@@ -269,9 +294,16 @@ def predict_route(
             detail=f"Batch size {arr.shape[0]} > MAX_BATCH={MAX_BATCH}",
         )
 
+    batch_bucket = _bucket_batch_size(arr.shape[0])
     t0 = time.perf_counter()
     out = predict(model, arr, batch_size=min(MAX_BATCH, arr.shape[0]))
     dt = (time.perf_counter() - t0) * 1000.0
+
+    kanx_inference_total.labels(backend="tf", batch_size=batch_bucket).inc()
+    kanx_inference_latency_seconds.labels(
+        backend="tf", batch_size=batch_bucket
+    ).observe(dt / 1000.0)
+
     return PredictResponse(
         output=out.tolist(),
         shape=list(out.shape),
