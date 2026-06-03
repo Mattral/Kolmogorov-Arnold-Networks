@@ -78,11 +78,11 @@ would be slow.
 | TF logs | container stdout (set `TF_CPP_MIN_LOG_LEVEL=2/3` in prod) |
 | Library logs | `kanx.train`, `kanx.inference`, `kanx.cli` via stdlib `logging` |
 
-P1 backlog (`roadmap.md`):
+Production observability is available today:
 
-* Prometheus `/metrics` endpoint.
-* Structured JSON logs.
-* OpenTelemetry traces around `/api/predict`.
+* Prometheus `/metrics` endpoint via `prometheus-fastapi-instrumentator`.
+* Kubernetes service annotations and scrape config are already included.
+* Structured JSON logs and OpenTelemetry traces remain future work.
 
 ### Prometheus scrape config
 

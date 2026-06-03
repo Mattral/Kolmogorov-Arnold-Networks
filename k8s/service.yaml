@@ -39,7 +39,7 @@ metadata:
   annotations:
     # NOTE: CPU-based HPA is a starter signal. For latency-sensitive
     # inference workloads, replace with custom metrics (request-queue depth
-    # via KEDA, or `inference_ms` p99 from Prometheus). See `documentations/
+    # via KEDA, or `inference_ms` p99 from Prometheus). See `docs/
     # deployment.md` for the full discussion.
     kanx.io/autoscaling-strategy: "cpu-starter"
 spec:

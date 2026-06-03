@@ -25,7 +25,7 @@ Package layout: src/kanx/ (TF), src/kanx/torch/ (PyTorch)
 CI: GitHub Actions (.github/workflows/ci.yml + release.yml)
 Benchmarks: benchmarks/compare_mlp.py
 Tests: tests/  (95 tests, 94% coverage)
-Docs: docs/ (MkDocs Material) + documentations/ (long-form)
+Docs: docs/ (MkDocs Material source; single docs root; documentations/ removed)
 Serving: api/app.py (FastAPI)
 Infra: Dockerfile, docker-compose.yml, k8s/
 Known issues to fix in this session: [PASTE RELEVANT BLOCK TITLE]
@@ -841,20 +841,20 @@ Perform a final housekeeping pass to bring the repository to v0.2.0 standard.
 Copy this into a GitHub Issue titled "v0.2.0 upgrade tracker" and check off
 each item as you complete the corresponding block:
 
-- [ ] BLOCK 1: README badge fixes
-- [ ] BLOCK 2: CITATION.cff + SECURITY.md
-- [ ] BLOCK 3: Docs consolidation (docs/ + documentations/ → docs/)
+- [x] BLOCK 1: README badge fixes
+- [x] BLOCK 2: CITATION.cff + SECURITY.md
+- [x] BLOCK 3: Docs consolidation (docs/ + documentations/ → docs/)
 - [ ] BLOCK 4: Real-world benchmark suite code
 - [ ] BLOCK 5: Benchmark results artifact committed
 - [ ] BLOCK 6: GPU timing in compare_mlp.py
 - [ ] BLOCK 7: MatrixKAN vectorised layer
 - [ ] BLOCK 8: Adaptive grid update (pykan parity)
-- [ ] BLOCK 9: TensorBoard callback
+- [x] BLOCK 9: TensorBoard callback
 - [ ] BLOCK 10: kanx.datasets mini-module
-- [ ] BLOCK 11: HuggingFace Hub integration
-- [ ] BLOCK 12: Prometheus /metrics endpoint
+- [x] BLOCK 11: HuggingFace Hub integration
+- [x] BLOCK 12: Prometheus /metrics endpoint
 - [ ] BLOCK 13: CI benchmark gate + coverage gate
-- [ ] BLOCK 14: Symbolic regression hooks
+- [x] BLOCK 14: Symbolic regression hooks
 - [ ] BLOCK 15: Version bump to 0.2.0 + final audit
 
 ---

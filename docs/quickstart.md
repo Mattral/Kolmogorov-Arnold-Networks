@@ -5,7 +5,7 @@ Three calls to train, save, and predict.
 ## 1. Install
 
 ```bash
-pip install "kanx[torch,api,onnx]"
+pip install "kanx[all]"
 ```
 
 ## 2. ⚡ One-call magic

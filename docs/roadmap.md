@@ -25,7 +25,8 @@ Single source of truth for what's shipped and what's next.
 
 ### Serving
 - ✅ FastAPI service (`api/app.py`) with thread-safe `ModelRegistry`
-- ✅ Endpoints: `/api/health`, `/api/info`, `/api/predict`, `/api/load`, `/api/reset`
+- ✅ Endpoints: `/api/health`, `/api/info`, `/metrics`, `/api/predict`, `/api/load`, `/api/reset`
+- ✅ Prometheus `/metrics` scrape endpoint via `prometheus-fastapi-instrumentator`
 - ✅ Lifespan-based startup with checkpoint-with-fallback contract
 - ✅ Boundary validation (400 / 413 / 404 at right places)
 - ✅ Supervisor-managed deployment via `backend/server.py`
@@ -44,7 +45,7 @@ Single source of truth for what's shipped and what's next.
 - ✅ GitHub Actions CI: matrix py3.10/3.11/3.12 + lint + Docker smoke + MkDocs build
 - ✅ Release pipeline (`release.yml`): PyPI (OIDC) + GHCR Docker push + GitHub Release + MkDocs gh-deploy
 - ✅ **MkDocs Material site** (`mkdocs.yml` + `docs/`) — 12 pages with code-tabs, dark/light, search
-- ✅ `documentations/` — 8 long-form docs (philosophy, architecture, system_design, build, security, api, testing, deployment)
+- ✅ `docs/` — 12-page MkDocs source including architecture, system_design, api, deployment, testing, and quickstart
 - ✅ `CHANGELOG.md` (Keep-a-Changelog format)
 - ✅ `notebooks/quickstart.ipynb` — Colab-ready "Train KAN in 2 minutes"
 - ✅ `notebooks/LAUNCH_POST.md` — community launch copy
@@ -52,13 +53,13 @@ Single source of truth for what's shipped and what's next.
 
 ## 🟡 In progress / Next iteration
 
-- [ ] **Adaptive grid update** (pykan-style `update_grid_from_samples`)
+- [x] **Adaptive grid update** (`update_grid_from_samples`)
 - [ ] **Pruning / sparsification** to drop unused edges
-- [ ] **Symbolic regression** post-hoc fit per edge
+- [x] **Symbolic regression** post-hoc fit per edge
 - [ ] **Mixed precision** + XLA JIT on the spline einsum
-- [ ] **TensorBoard callback** wired into `train()`
-- [ ] **`kanx.datasets`** mini-module (Feynman, UCI tabular)
-- [ ] **HuggingFace Hub integration** — `KAN.from_pretrained("user/model")`
+- [x] **TensorBoard callback** wired into `train()`
+- [x] **`kanx.datasets`** mini-module (Feynman, UCI tabular)
+- [x] **HuggingFace Hub integration** — `KAN.from_pretrained("user/model")`
 
 ## 🔵 Backlog (P1)
 
@@ -66,7 +67,6 @@ Single source of truth for what's shipped and what's next.
 - [ ] Multi-GPU / `tf.distribute.MirroredStrategy` + `torch.distributed` CI smoke
 - [ ] Bayesian / dropout KAN variant for uncertainty estimation
 - [ ] Helm chart for `k8s/` (parameterised values)
-- [ ] Prometheus `/metrics` endpoint on FastAPI
 - [ ] gRPC serving alongside REST
 - [ ] JAX backend (`kanx.jax`) as a third parallel surface
 

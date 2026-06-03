@@ -44,7 +44,7 @@ Single source of truth for what's shipped and what's next.
 - ✅ GitHub Actions CI: matrix py3.10/3.11/3.12 + lint + Docker smoke + MkDocs build
 - ✅ Release pipeline (`release.yml`): PyPI (OIDC) + GHCR Docker push + GitHub Release + MkDocs gh-deploy
 - ✅ **MkDocs Material site** (`mkdocs.yml` + `docs/`) — 12 pages with code-tabs, dark/light, search
-- ✅ `documentations/` — 8 long-form docs (philosophy, architecture, system_design, build, security, api, testing, deployment)
+- ✅ `docs/` — MkDocs source for the website and long-form reference docs
 - ✅ `CHANGELOG.md` (Keep-a-Changelog format)
 - ✅ `notebooks/quickstart.ipynb` — Colab-ready "Train KAN in 2 minutes"
 - ✅ `notebooks/LAUNCH_POST.md` — community launch copy
@@ -115,7 +115,6 @@ Single source of truth for what's shipped and what's next.
 - [ ] Multi-GPU / `tf.distribute.MirroredStrategy` + `torch.distributed` CI smoke
 - [ ] Bayesian / dropout KAN variant for uncertainty estimation
 - [ ] Helm chart for `k8s/` (parameterised values)
-- [ ] Prometheus `/metrics` endpoint on FastAPI
 - [ ] gRPC serving alongside REST
 - [ ] JAX backend (`kanx.jax`) as a third parallel surface
 

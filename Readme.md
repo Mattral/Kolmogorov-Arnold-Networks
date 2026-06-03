@@ -26,7 +26,7 @@
 </p>
 
 > **`pip install kanx`** &nbsp;·&nbsp; A small KAN beats a 10× larger MLP on smooth, separable targets — **honest, param-matched benchmark below.**
-> One library. Two backends. Real ONNX export. Docker + Kubernetes ready.
+> One library. Two backends. Real ONNX export. Docker + Kubernetes ready. Prometheus metrics, TensorBoard logging, Hub and symbolic extras are now implemented.
 
 ---
 
@@ -113,6 +113,12 @@ pip install "kanx[symbolic]"    # +Symbolic regression hooks
 pip install "kanx[all]"         # everything (api + torch + onnx + hub + symbolic + dev + docs)
 ```
 
+Optional extras:
+* `kanx[api]` adds FastAPI serving with `/metrics` Prometheus scraping.
+* `kanx[torch]` adds the PyTorch backend, `MatrixKAN`, and symbolic helpers.
+* `kanx[hub]` adds `push_to_hub()` / `from_pretrained()` for HuggingFace integration.
+* `kanx[symbolic]` adds `SymbolicFitter` for post-hoc edge function extraction.
+
 → Open in Colab: **[Train a KAN in 2 minutes](https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb)**
 
 ---
@@ -151,7 +157,7 @@ Reproduce with `python benchmarks/compare_mlp.py` (quick, 100 epochs) or
 | REST API service  | ❌ | ❌ | ❌ | ✅ FastAPI |
 | Docker + K8s      | ❌ | ❌ | ❌ | ✅ |
 | Property-based tests | ❌ | ❌ | ❌ | ✅ Hypothesis |
-| Test coverage     | research | research | research | **92%** |
+| Test coverage     | research | research | research | **94%** |
 | PyPI              | ✅ | ✅ | ✅ | ✅ |
 | CI/CD release pipeline | ❌ | ❌ | ❌ | ✅ PyPI + GHCR + Pages |
 
