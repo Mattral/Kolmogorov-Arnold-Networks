@@ -7,7 +7,8 @@ from typing import Iterable, List, Sequence, Union
 
 import yaml
 import torch
-from huggingface_hub import HfApi, hf_hub_download
+import huggingface_hub
+from huggingface_hub import HfApi
 from torch import nn
 
 from .layers import KANLinear
@@ -165,8 +166,8 @@ class KAN(nn.Sequential):
 
     @classmethod
     def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> "KAN":
-        model_path = hf_hub_download(repo_id=repo_id, filename="model.pt", revision=revision)
-        config_path = hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
+        model_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="model.pt", revision=revision)
+        config_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
         with open(config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
@@ -201,7 +202,19 @@ class KAN(nn.Sequential):
 
             self.save(model_path)
             with open(config_path, "w", encoding="utf-8") as f:
-                yaml.safe_dump({"model": {**self._defaults, "layers": self._layers_spec, "name": self.__class__.__name__}}, f)
+                yaml.safe_dump(
+                    {
+                        "model": {
+                            **{
+                                **self._defaults,
+                                "grid_range": list(self._defaults["grid_range"]),
+                            },
+                            "layers": list(self._layers_spec),
+                            "name": self.__class__.__name__,
+                        }
+                    },
+                    f,
+                )
 
             api = HfApi()
             api.create_repo(repo_id=repo_id, private=private, exist_ok=True)
