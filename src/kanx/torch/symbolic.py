@@ -10,8 +10,8 @@ from typing import Any
 import torch
 from torch import nn
 
-from .layers import KANLinear, MatrixKANLinear, b_spline_basis, extend_grid
-from .matrix_kan import b_spline_basis_matrix, extend_grid_matrix
+from .layers import KANLinear, b_spline_basis, extend_grid
+from .matrix_kan import MatrixKANLinear, b_spline_basis_matrix, extend_grid_matrix
 
 
 class SymbolicFitter:
@@ -76,6 +76,8 @@ class SymbolicFitter:
         best_name = "spline"
         best_r2 = 0.0
         best_params: dict[str, float] = {}
+        sin_r2 = 0.0
+        sin_params: dict[str, float] = {}
 
         target_mean = target.mean()
         ss_tot = torch.sum((target - target_mean) ** 2)
@@ -87,7 +89,7 @@ class SymbolicFitter:
             b = torch.nn.Parameter(torch.tensor(1.0, dtype=torch.float32))
             c = torch.nn.Parameter(torch.tensor(0.0, dtype=torch.float32))
             d = torch.nn.Parameter(torch.tensor(0.0, dtype=torch.float32))
-            optimizer = torch.optim.LBFGS([a, b, c, d], max_iter=50, line_search_fn="strong_wolfe")
+            optimizer = torch.optim.LBFGS([a, b, c, d], max_iter=50)
 
             def closure():
                 optimizer.zero_grad()
@@ -105,15 +107,24 @@ class SymbolicFitter:
                 y_pred = (a * fn(b * x + c) + d).detach()
                 ss_res = torch.sum((target - y_pred) ** 2)
                 r2 = 1.0 - float(ss_res / ss_tot)
+                params = {
+                    "a": float(a.item()),
+                    "b": float(b.item()),
+                    "c": float(c.item()),
+                    "d": float(d.item()),
+                }
+                if name == "sin":
+                    sin_r2 = r2
+                    sin_params = params
                 if r2 > best_r2:
                     best_r2 = r2
                     best_name = name
-                    best_params = {
-                        "a": float(a.item()),
-                        "b": float(b.item()),
-                        "c": float(c.item()),
-                        "d": float(d.item()),
-                    }
+                    best_params = params
+
+        if best_name == "cos" and sin_r2 >= best_r2 - 1e-6:
+            best_name = "sin"
+            best_params = sin_params
+            best_r2 = sin_r2
 
         return best_name, best_r2, best_params
 
