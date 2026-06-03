@@ -20,6 +20,7 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import tensorflow as tf
 
+from .callbacks import KANTensorBoardCallback
 from .config import KanxConfig, validate_config
 from .model import KAN
 from .utils import ensure_dir, get_logger, resolve_checkpoint_path, set_global_seed
@@ -62,6 +63,8 @@ def train(
     *,
     verbose: int = 1,
     extra_callbacks: Optional[list] = None,
+    tensorboard: bool = False,
+    log_dir: str = "logs/kanx",
 ) -> Tuple[KAN, tf.keras.callbacks.History]:
     """Train a KAN model and persist the best checkpoint."""
     if isinstance(config, dict):
@@ -114,6 +117,18 @@ def train(
                 verbose=verbose,
             )
         )
+    if tensorboard:
+        sample_batch = None
+        if X is not None:
+            sample_batch = tf.convert_to_tensor(X[:256], dtype=tf.float32)
+        callbacks.append(
+            KANTensorBoardCallback(
+                log_dir=log_dir,
+                histogram_freq=5,
+                sample_batch=sample_batch,
+            )
+        )
+
     if extra_callbacks:
         callbacks.extend(extra_callbacks)
 

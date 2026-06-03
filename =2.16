@@ -1,0 +1,29 @@
+Collecting tensorboard
+  Downloading tensorboard-2.20.0-py3-none-any.whl.metadata (1.8 kB)
+Requirement already satisfied: absl-py>=0.4 in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (2.4.0)
+Requirement already satisfied: grpcio>=1.48.2 in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (1.81.0)
+Collecting markdown>=2.6.8 (from tensorboard)
+  Downloading markdown-3.10.2-py3-none-any.whl.metadata (5.1 kB)
+Requirement already satisfied: numpy>=1.12.0 in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (2.4.6)
+Requirement already satisfied: packaging in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (26.2)
+Collecting pillow (from tensorboard)
+  Downloading pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)
+Requirement already satisfied: protobuf!=4.24.0,>=3.19.6 in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (7.35.0)
+Requirement already satisfied: setuptools>=41.0.0 in /home/codespace/.local/lib/python3.12/site-packages (from tensorboard) (82.0.1)
+Collecting tensorboard-data-server<0.8.0,>=0.7.0 (from tensorboard)
+  Downloading tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl.metadata (1.1 kB)
+Collecting werkzeug>=1.0.1 (from tensorboard)
+  Downloading werkzeug-3.1.8-py3-none-any.whl.metadata (4.0 kB)
+Requirement already satisfied: typing-extensions~=4.12 in /home/codespace/.local/lib/python3.12/site-packages (from grpcio>=1.48.2->tensorboard) (4.15.0)
+Requirement already satisfied: markupsafe>=2.1.1 in /home/codespace/.local/lib/python3.12/site-packages (from werkzeug>=1.0.1->tensorboard) (3.0.3)
+Downloading tensorboard-2.20.0-py3-none-any.whl (5.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.5/5.5 MB 27.6 MB/s  0:00:00
+Downloading tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl (6.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 41.9 MB/s  0:00:00
+Downloading markdown-3.10.2-py3-none-any.whl (108 kB)
+Downloading werkzeug-3.1.8-py3-none-any.whl (226 kB)
+Downloading pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 46.1 MB/s  0:00:00
+Installing collected packages: werkzeug, tensorboard-data-server, pillow, markdown, tensorboard
+
+Successfully installed markdown-3.10.2 pillow-12.2.0 tensorboard-2.20.0 tensorboard-data-server-0.7.2 werkzeug-3.1.8
