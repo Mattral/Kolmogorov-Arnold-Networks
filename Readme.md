@@ -13,7 +13,7 @@
   <a href="https://github.com/Mattral/KANX/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Mattral/KANX/ci.yml?branch=main&label=CI&style=for-the-badge&logo=github"></a>
   <img alt="Python" src="https://img.shields.io/pypi/pyversions/kanx?style=for-the-badge&logo=python&logoColor=white">
   <a href="https://mattral.github.io/KANX/"><img alt="Docs" src="https://img.shields.io/badge/docs-mkdocs--material-22C55E?style=for-the-badge&logo=readthedocs&logoColor=white"></a>
-  <a href="https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb"><img alt="Colab" src="https://img.shields.io/badge/Colab-train_in_2_min-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white"></a>
+  <a href="https://colab.research.google.com/github/Mattral/KANX/blob/main/notebooks/quickstart.ipynb"><img alt="Colab" src="https://img.shields.io/badge/Colab-train_in_2_to_5_min-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-A78BFA?style=for-the-badge"></a>
   <a href="https://doi.org/10.5281/zenodo.20430883">
     <img alt="DOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20430883-7C3AED?style=for-the-badge&logo=zenodo&logoColor=white">
