@@ -4,7 +4,7 @@ import os
 os.environ["TORCH_INDUCTOR_DISABLE_TRITON"] = "1"
 
 import torch
-from kanx.torch import KAN, Trainer
+from kanx.torch import KAN
 import numpy as np
 
 print("Creating KAN model...")
