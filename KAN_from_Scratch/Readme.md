@@ -3,40 +3,7 @@
 
 *Update,* see [KANX Repo](https://github.com/Mattral/KANX/) for the production grade library implementation.
 
-## Why This Repository Exists
-
-Kolmogorov-Arnold Networks (KANs) are a recent alternative to traditional MLPs that replace fixed node-wise activations with **learnable edge-wise functions**, often parameterized using splines.
-
-While official KAN implementations focus on performance and large-scale experimentation, this repository is intentionally designed to:
-
-• Provide a **clean, readable TensorFlow implementation**  
-• Expose the **core mechanics** of spline-based edge activations  
-• Enable **inspection, experimentation, and learning**, rather than black-box usage  
-
-This is a **learning- and understanding-oriented implementation**, not a production-optimized framework.
-
-## Scope and Non-Goals
-
-### This repository IS:
-- A reference implementation of KANs in TensorFlow
-- Focused on clarity, inspectability, and conceptual understanding
-- Suitable for research prototyping and educational exploration
-
-### This repository IS NOT:
-- A drop-in replacement for pykan
-- Optimized for large-scale or GPU-heavy training
-- Claiming state-of-the-art benchmark performance
-
-
-## How to Use and Explore This Repository
-
-Recommended workflow:
-1. Start with the conceptual overview of KANs below
-2. Inspect the `KANLinear` layer to understand edge-wise spline activations
-3. Experiment with different grid sizes and spline orders
-4. Visualize learned activation functions (see Visualization section below)
-5. Compare behavior against a standard MLP on toy regression tasks
-
+---
 
 #### Introduction
 The provided implementation includes a customizable neural network architecture based on Kolmogorov-Arnold Networks (KANs), 
