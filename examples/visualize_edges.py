@@ -8,6 +8,7 @@ from a black-box MLP.
 Run:
     python examples/visualize_edges.py     # writes edges.png next to this file
 """
+
 from __future__ import annotations
 
 import os
