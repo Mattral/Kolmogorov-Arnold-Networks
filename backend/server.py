@@ -4,6 +4,7 @@ Re-exports the FastAPI app from ``api.app`` so the platform's supervisor (which
 runs ``uvicorn server:app`` from ``/app/backend``) can serve the same REST API
 used by the Docker image.
 """
+
 from __future__ import annotations
 
 import os
