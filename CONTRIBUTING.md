@@ -15,7 +15,7 @@ pip install -e ".[dev,api,torch,onnx,docs]"
 bash scripts/test.sh         # must stay green
 ```
 
-Open a draft PR early. We'd rather discuss with code in front of us.
+Open a draft PR early. We'd rather discuss with code in front of us!
 
 ---
 
