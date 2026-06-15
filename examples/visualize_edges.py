@@ -24,8 +24,8 @@ def main():
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-    except ImportError:
-        raise SystemExit("matplotlib is required: pip install matplotlib")
+    except ImportError as err:
+        raise SystemExit("matplotlib is required: pip install matplotlib") from err
 
     set_global_seed(0)
 

@@ -40,8 +40,8 @@ def main():
     # 4. Run with ONNX Runtime — anywhere
     try:
         import onnxruntime as ort
-    except ImportError:
-        raise SystemExit("Install: pip install onnxruntime")
+    except ImportError as err:
+        raise SystemExit("Install: pip install onnxruntime") from err
 
     sess = ort.InferenceSession("kan.onnx")
     xin = np.random.randn(8, 2).astype("float32")
