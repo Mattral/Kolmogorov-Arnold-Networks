@@ -322,7 +322,7 @@ def load_route(
     try:
         model = load_model(req.path)
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load: {exc!s}")
+        raise HTTPException(status_code=400, detail=f"Failed to load: {exc!s}") from exc
     REGISTRY.set(model, source=f"checkpoint:{req.path}")
     return {"status": "ok", **REGISTRY.status()}
 
