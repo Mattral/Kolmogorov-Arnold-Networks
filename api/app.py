@@ -33,7 +33,7 @@ import numpy as np
 import tensorflow as tf  # noqa: F401  (ensures TF is initialised before model load)
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import REGISTRY, Counter, Histogram
+from prometheus_client import Counter, Histogram
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 
@@ -56,8 +56,6 @@ MAX_BATCH = int(os.environ.get("KANX_MAX_BATCH", "4096"))
 API_KEY = os.environ.get("KANX_API_KEY", "").strip()  # "" disables auth
 RATE_LIMIT_RPM = int(os.environ.get("KANX_RATE_LIMIT_RPM", "0"))  # 0 disables
 
-# Clear Prometheus registry to avoid duplicate metrics when module is reloaded in tests
-REGISTRY.clear()
 
 # ---------------------------------------------------------------------------
 # Thread-safe model registry
@@ -125,19 +123,18 @@ def _build_fresh_from_config(config_path: str) -> tf.keras.Model:
     model(tf.zeros((1, cfg.model.layers[0]), dtype=tf.float32))
     return model
 
-MODEL_REGISTRY = ModelRegistry()
-
-kanx_inference_total = Counter(
-    "kanx_inference_total",
-    "Total successful inference requests handled by kanx.",
-    ["backend", "batch_size"],
-)
-kanx_inference_latency_seconds = Histogram(
-    "kanx_inference_latency_seconds",
-    "Inference latency for /api/predict in seconds.",
-    ["backend", "batch_size"],
-)
-
+if "kanx_inference_total" not in globals():
+    kanx_inference_total = Counter(
+        "kanx_inference_total",
+        "Total successful inference requests handled by kanx.",
+        ["backend", "batch_size"],
+    )
+if "kanx_inference_latency_seconds" not in globals():
+    kanx_inference_latency_seconds = Histogram(
+        "kanx_inference_latency_seconds",
+        "Inference latency for /api/predict in seconds.",
+        ["backend", "batch_size"],
+    )
 
 def _bucket_batch_size(batch_size: int) -> str:
     if batch_size <= 1:
