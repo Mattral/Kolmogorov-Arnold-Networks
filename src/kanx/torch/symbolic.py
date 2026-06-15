@@ -91,7 +91,7 @@ class SymbolicFitter:
             d = torch.nn.Parameter(torch.tensor(0.0, dtype=torch.float32))
             optimizer = torch.optim.LBFGS([a, b, c, d], max_iter=50)
 
-            def closure():
+            def closure(optimizer=optimizer, a=a, b=b, c=c, d=d, fn=fn):
                 optimizer.zero_grad()
                 y_pred = a * fn(b * x + c) + d
                 loss = torch.mean((y_pred - target) ** 2)
