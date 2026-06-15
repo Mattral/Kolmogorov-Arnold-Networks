@@ -96,7 +96,7 @@ def fit_and_score(
                 for _ in range(10):
                     _ = model(X_test[:n_inf])
                 t2 = time.perf_counter()
-                out = model(X_test[:n_inf]).numpy()
+                out = model(X_test[:n_inf]).numpy() # noqa: F841
                 infer_ms_gpu = (time.perf_counter() - t2) * 1000.0
     except Exception:
         infer_ms_gpu = None

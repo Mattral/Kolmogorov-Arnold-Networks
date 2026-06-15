@@ -57,7 +57,7 @@ def test_tensorboard_pytorch_creates_log_dir(tmp_path):
         tensorboard=True,
         log_dir=str(log_dir),
         verbose=0,
-    )
+    ) # noqa: F841
 
     event_files = list(Path(log_dir).glob("**/events.out.tfevents.*"))
     assert Path(log_dir).exists()
