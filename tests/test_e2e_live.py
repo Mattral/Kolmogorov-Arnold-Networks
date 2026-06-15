@@ -27,7 +27,7 @@ import requests
 import yaml
 
 BASE_URL = "http://localhost:8001"
-ROOT = Path("/app")
+ROOT = Path(__file__).resolve().parent.parent
 
 
 # -------------------- 1. Public API imports -------------------------------
