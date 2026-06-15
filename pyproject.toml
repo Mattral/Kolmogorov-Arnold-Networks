@@ -80,7 +80,10 @@ filterwarnings = [
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-exclude = ["notebooks/*.ipynb"]
+exclude = [
+  "notebooks/*.ipynb",
+  "KAN_from_Scratch/*"
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]

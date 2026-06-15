@@ -8,7 +8,7 @@ print("Importing TensorFlow...")
 print("TensorFlow OK")
 
 print("Importing PyTorch...")
-import torch # noqa: E402
+import torch  # noqa: E402
 
 print("PyTorch OK")
 
