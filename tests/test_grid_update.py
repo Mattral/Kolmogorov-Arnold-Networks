@@ -187,6 +187,7 @@ class TestGridUpdateImprovement:
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            print(f"Epoch {epoch}: loss={loss.item():.4f}")
 
         loss_before_update = criterion(model(X_train), y_train).item()
 
@@ -200,6 +201,7 @@ class TestGridUpdateImprovement:
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            print(f"Epoch {epoch}: loss={loss.item():.4f}")
 
         loss_after_update = criterion(model(X_train), y_train).item()
 
