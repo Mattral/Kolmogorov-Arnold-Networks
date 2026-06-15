@@ -37,7 +37,7 @@ def test_tensorboard_callback_creates_log_dir(tmp_path):
 
 def test_tensorboard_pytorch_creates_log_dir(tmp_path):
     try:
-        import torch # noqa: F401
+        import torch  # noqa: F401
 
         from kanx.torch import KAN as TorchKAN
     except ImportError:
