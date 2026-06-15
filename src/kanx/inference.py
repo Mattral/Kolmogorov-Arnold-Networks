@@ -6,7 +6,6 @@ the load / save semantics are consistent across surfaces.
 from __future__ import annotations
 
 import os
-from typing import Union
 
 import numpy as np
 import tensorflow as tf
