@@ -26,6 +26,7 @@ jobs:
       - name: Install package + dev + api + torch + onnx extras
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install -e .[dev,api,onnx]
           # Torch CPU wheel from the dedicated index
           pip install --index-url https://download.pytorch.org/whl/cpu torch
