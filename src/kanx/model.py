@@ -18,7 +18,7 @@ from huggingface_hub import HfApi
 
 from .layers import KANLinear
 
-LayersSpec = Union[Sequence[int], Sequence[dict]]
+LayersSpec = Sequence[int] | Sequence[dict]
 
 
 @tf.keras.utils.register_keras_serializable(package="kanx")

@@ -14,7 +14,7 @@ from torch import nn
 
 from .layers import KANLinear
 
-LayersSpec = Union[Sequence[int], Sequence[dict]]
+LayersSpec = Sequence[int] | Sequence[dict]
 
 
 class KAN(nn.Sequential):

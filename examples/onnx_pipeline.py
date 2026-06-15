@@ -18,7 +18,7 @@ import torch
 
 torch.set_num_threads(1)
 
-from kanx.torch import KAN, export_onnx # noqa: E402
+from kanx.torch import KAN, export_onnx  # noqa: E402
 
 
 def main():

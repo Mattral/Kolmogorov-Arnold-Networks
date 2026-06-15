@@ -17,7 +17,7 @@ from .utils import get_logger
 
 _LOG = get_logger("kanx.inference")
 
-ArrayLike = Union[np.ndarray, tf.Tensor, list]
+ArrayLike = np.ndarray | tf.Tensor | list
 
 
 # ---------------------------------------------------------------------------
