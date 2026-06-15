@@ -27,22 +27,19 @@ from __future__ import annotations
 import os
 import threading
 import time
-from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import List, Optional, Union
 
 import numpy as np
 import tensorflow as tf  # noqa: F401  (ensures TF is initialised before model load)
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram
 from prometheus_fastapi_instrumentator import Instrumentator
+from pydantic import BaseModel, Field
 
 from kanx import KAN, __version__
 from kanx.config import load_config
 from kanx.inference import load_model, predict
-
 
 # ---------------------------------------------------------------------------
 # Configuration via environment variables (12-factor)
@@ -66,10 +63,10 @@ RATE_LIMIT_RPM = int(os.environ.get("KANX_RATE_LIMIT_RPM", "0"))  # 0 disables
 class ModelRegistry:
     def __init__(self) -> None:
         self._lock = threading.RLock()
-        self._model: Optional[tf.keras.Model] = None
+        self._model: tf.keras.Model | None = None
         self._source: str = "uninitialized"
-        self._in_features: Optional[int] = None
-        self._out_features: Optional[int] = None
+        self._in_features: int | None = None
+        self._out_features: int | None = None
         self._loaded_at: float = 0.0
 
     def set(self, model: tf.keras.Model, source: str) -> None:
@@ -165,14 +162,14 @@ def _initialise(checkpoint: str, config: str) -> str:
 # ---------------------------------------------------------------------------
 class PredictRequest(BaseModel):
     # Accept either a single sample [f1, f2, ...] or a batch [[..], [..]].
-    x: Union[List[float], List[List[float]]] = Field(
+    x: list[float] | list[list[float]] = Field(
         ..., description="Single sample (1-D list) or batch (2-D list)."
     )
 
 
 class PredictResponse(BaseModel):
-    output: List[List[float]]
-    shape: List[int]
+    output: list[list[float]]
+    shape: list[int]
     inference_ms: float
 
 
@@ -219,7 +216,7 @@ _RATE_BUCKETS: dict[str, list[float]] = {}
 _RATE_LOCK = threading.Lock()
 
 
-def _check_api_key(x_api_key: Optional[str]) -> None:
+def _check_api_key(x_api_key: str | None) -> None:
     if not API_KEY:
         return
     if not x_api_key or x_api_key != API_KEY:
@@ -268,7 +265,7 @@ def info() -> dict:
 def predict_route(
     req: PredictRequest,
     request: Request,
-    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> PredictResponse:
     _check_api_key(x_api_key)
     _check_rate_limit(request)
@@ -317,7 +314,7 @@ def predict_route(
 @app.post("/api/load")
 def load_route(
     req: LoadRequest,
-    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> dict:
     _check_api_key(x_api_key)
     if not os.path.exists(req.path):
@@ -332,7 +329,7 @@ def load_route(
 
 @app.post("/api/reset")
 def reset_route(
-    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> dict:
     _check_api_key(x_api_key)
     model = _build_fresh_from_config(DEFAULT_CONFIG)

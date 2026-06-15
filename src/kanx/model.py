@@ -7,16 +7,16 @@ together a list of `KANLinear` layers from a list of widths
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, List, Sequence, Union
+from typing import Union
 
-import yaml
-import tensorflow as tf
 import huggingface_hub
+import tensorflow as tf
+import yaml
 from huggingface_hub import HfApi
 
 from .layers import KANLinear
-
 
 LayersSpec = Union[Sequence[int], Sequence[dict]]
 
@@ -66,7 +66,7 @@ class KAN(tf.keras.Sequential):
             for cfg in self._layers_spec:
                 self.add(KANLinear(**{**self._default_kwargs, **cfg}))
         else:
-            widths: List[int] = [int(w) for w in self._layers_spec]
+            widths: list[int] = [int(w) for w in self._layers_spec]
             if len(widths) < 2:
                 raise ValueError(
                     "When passing widths, provide at least 2 values "
@@ -112,10 +112,10 @@ class KAN(tf.keras.Sequential):
         kan_layers = [layer for layer in self.layers if isinstance(layer, KANLinear)]
         if not kan_layers:
             return
-        
+
         # Update first layer from raw input
         kan_layers[0].update_grid_from_samples(x, margin=margin)
-        
+
         # Update remaining layers by propagating through prior layers
         current_x = x
         for i in range(1, len(kan_layers)):
@@ -137,10 +137,10 @@ class KAN(tf.keras.Sequential):
         }
 
     @classmethod
-    def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> "KAN":
+    def from_pretrained(cls, repo_id: str, revision: str = "main", **kwargs) -> KAN:
         model_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="model.keras", revision=revision)
         config_path = huggingface_hub.hf_hub_download(repo_id=repo_id, filename="config.yaml", revision=revision)
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         model_cfg = config.get("model", {})

@@ -15,11 +15,9 @@ That's it. No config files, no `compile()` dance, no manual loop.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 
-from .config import KanxConfig, ModelConfig, TrainingConfig, CheckpointConfig
+from .config import CheckpointConfig, KanxConfig, ModelConfig, TrainingConfig
 from .train import train
 from .utils import set_global_seed
 

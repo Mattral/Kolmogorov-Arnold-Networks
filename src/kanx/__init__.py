@@ -18,15 +18,15 @@ Modules:
 """
 from __future__ import annotations
 
+from . import datasets
+from .config import KanxConfig, load_config, validate_config
+from .inference import load_model, predict, save_model
 from .layers import KANLinear, b_spline_basis, extend_grid
 from .model import KAN, build_kan
-from .config import load_config, validate_config, KanxConfig
-from .train import train, build_optimizer, build_loss
-from .inference import predict, load_model, save_model
-from .utils import set_global_seed, get_logger, fit_grid_to_data, check_input_range
 from .onnx_export import export_onnx_tf
 from .quickstart import quickstart
-from . import datasets
+from .train import build_loss, build_optimizer, train
+from .utils import check_input_range, fit_grid_to_data, get_logger, set_global_seed
 
 __all__ = [
     "KAN",

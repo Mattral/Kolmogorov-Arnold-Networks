@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from kanx import KAN, fit_grid_to_data, check_input_range, set_global_seed
+from kanx import KAN, check_input_range, fit_grid_to_data, set_global_seed
 
 
 def main() -> None:

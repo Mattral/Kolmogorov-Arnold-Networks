@@ -12,7 +12,6 @@ Usage::
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -21,7 +20,7 @@ import tensorflow as tf
 def export_onnx_tf(
     model: tf.keras.Model,
     path: str,
-    sample_input: Optional[np.ndarray] = None,
+    sample_input: np.ndarray | None = None,
     *,
     opset: int = 17,
 ) -> str:

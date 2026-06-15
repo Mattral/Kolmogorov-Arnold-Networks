@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Pure PyTorch KAN test without TensorFlow."""
 import os
+
 os.environ["TORCH_INDUCTOR_DISABLE_TRITON"] = "1"
 
-import torch
 # Don't import tensorflow at all
-import numpy as np
+import torch
 
 print("PyTorch version:", torch.__version__)
 print("Creating simple module...")
@@ -15,7 +15,7 @@ class SimpleKAN(torch.nn.Module):
         super().__init__()
         self.lin1 = torch.nn.Linear(2, 32)
         self.lin2 = torch.nn.Linear(32, 1)
-    
+
     def forward(self, x):
         x = torch.relu(self.lin1(x))
         return self.lin2(x)

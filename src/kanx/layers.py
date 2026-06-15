@@ -26,8 +26,6 @@ Design notes
 """
 from __future__ import annotations
 
-from typing import Tuple
-
 import tensorflow as tf
 from tensorflow.keras import initializers, regularizers
 from tensorflow.keras.layers import Layer
@@ -148,7 +146,7 @@ class KANLinear(Layer):
         grid_size: int = 5,
         spline_order: int = 3,
         base_activation: str = "silu",
-        grid_range: Tuple[float, float] = (-1.0, 1.0),
+        grid_range: tuple[float, float] = (-1.0, 1.0),
         scale_noise: float = 0.1,
         scale_base: float = 1.0,
         regularization_factor: float = 0.0,
@@ -276,7 +274,7 @@ class KANLinear(Layer):
                 f"Last dimension of x ({x.shape[-1]}) must match "
                 f"in_features ({self.in_features})"
             )
-        
+
         # Compute quantile-based grid for each feature
         new_grids = []
         for i in range(self.in_features):
@@ -287,16 +285,16 @@ class KANLinear(Layer):
             indices = tf.linspace(0.0, n - 1, self.grid_size + 1)
             indices = tf.cast(tf.round(indices), tf.int32)
             indices = tf.minimum(indices, tf.cast(tf.shape(sorted_feat)[0], tf.int32) - 1)
-            
+
             feat_grid = tf.gather(sorted_feat, indices)
             new_grids.append(feat_grid)
-        
+
         new_grid_tensor = tf.stack(new_grids, axis=0)
-        
+
         # Interpolate between uniform and sample-based grid
         # grid_eps controls how much we favor the sample-based grid
         uniform_grid = self.grid
         interpolated_grid = (1.0 - self.grid_eps) * uniform_grid + self.grid_eps * new_grid_tensor
-        
+
         # Update grid in-place
         self.grid.assign(interpolated_grid)

@@ -8,12 +8,14 @@ Run:
 from __future__ import annotations
 
 import os
+
 # Threading hygiene (torch + onnxruntime + numpy share BLAS pools).
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
 import numpy as np
 import torch
+
 torch.set_num_threads(1)
 
 from kanx.torch import KAN, export_onnx

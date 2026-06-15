@@ -19,7 +19,6 @@ import os
 import platform
 import time
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -34,7 +33,7 @@ class Result:
     params: int
     train_s: float
     infer_ms_4k_cpu: float
-    infer_ms_4k_gpu: Optional[float]
+    infer_ms_4k_gpu: float | None
     train_mse: float
     test_mse: float
 

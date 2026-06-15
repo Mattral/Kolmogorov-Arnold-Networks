@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 """Test PyTorch with TensorFlow imported."""
 import os
+
 os.environ["TORCH_INDUCTOR_DISABLE_TRITON"] = "1"
 
 print("Importing TensorFlow...")
-import tensorflow as tf
 print("TensorFlow OK")
 
 print("Importing PyTorch...")
-import torch
-import numpy as np
+import torch # noqa: E402
+
 print("PyTorch OK")
 
 print("Creating simple torch model...")

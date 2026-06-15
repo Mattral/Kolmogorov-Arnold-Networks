@@ -8,8 +8,6 @@ Numerical contracts (asserted by tests):
 """
 from __future__ import annotations
 
-from typing import Tuple
-
 import torch
 from torch import nn
 
@@ -83,7 +81,7 @@ class KANLinear(nn.Module):
         grid_size: int = 5,
         spline_order: int = 3,
         base_activation: str = "silu",
-        grid_range: Tuple[float, float] = (-1.0, 1.0),
+        grid_range: tuple[float, float] = (-1.0, 1.0),
         scale_noise: float = 0.1,
         trainable_grid: bool = False,
         grid_eps: float = 0.02,
@@ -151,25 +149,25 @@ class KANLinear(nn.Module):
                 f"Last dimension of x ({x.shape[-1]}) must match "
                 f"in_features ({self.in_features})"
             )
-        
+
         with torch.no_grad():
             # Compute quantile-based grid for each feature
             new_grids = []
             for i in range(self.in_features):
                 feat = x[:, i]
                 # Compute quantiles from 0 to 1
-                quantiles = torch.linspace(0, 1, self.grid_size + 1, 
+                quantiles = torch.linspace(0, 1, self.grid_size + 1,
                                           device=x.device, dtype=x.dtype)
                 feat_grid = torch.quantile(feat, quantiles)
                 new_grids.append(feat_grid)
-            
+
             new_grid_tensor = torch.stack(new_grids, dim=0)
-            
+
             # Interpolate between uniform and sample-based grid
             # grid_eps controls how much we favor the sample-based grid
             uniform_grid = self.grid.clone()
             interpolated_grid = (1.0 - self.grid_eps) * uniform_grid + self.grid_eps * new_grid_tensor
-            
+
             # Update grid in-place
             if isinstance(self.grid, nn.Parameter):
                 self.grid.data.copy_(interpolated_grid)

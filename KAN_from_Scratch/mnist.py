@@ -1,9 +1,9 @@
 import tensorflow as tf
+from KANtf import KAN
+from tensorflow.keras.datasets import mnist
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.datasets import mnist
-from KANtf import KAN
 
 # Load and preprocess data
 (x_train, y_train), (x_val, y_val) = mnist.load_data()

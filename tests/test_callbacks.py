@@ -1,9 +1,8 @@
-import os
 from pathlib import Path
 
 import numpy as np
 
-from kanx import KAN, train
+from kanx import train
 from kanx.config import load_config
 
 
@@ -39,6 +38,7 @@ def test_tensorboard_callback_creates_log_dir(tmp_path):
 def test_tensorboard_pytorch_creates_log_dir(tmp_path):
     try:
         import torch
+
         from kanx.torch import KAN as TorchKAN
     except ImportError:
         return

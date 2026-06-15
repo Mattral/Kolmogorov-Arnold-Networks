@@ -1,10 +1,10 @@
 # STILL NEED TO RESOLVE ISSUE and I am working on it ( feel free to fix )
 
 import unittest
-import tensorflow as tf
-import numpy as np
 
-from KANtf import KANLinear, KAN, extend_grid_tf, B_batch_tf
+import numpy as np
+import tensorflow as tf
+from KANtf import KAN, B_batch_tf, KANLinear, extend_grid_tf
 
 
 class TestKANLinear(unittest.TestCase):

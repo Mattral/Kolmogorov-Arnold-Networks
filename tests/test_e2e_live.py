@@ -35,18 +35,19 @@ def test_public_api_imports():
     from kanx import (  # noqa: F401
         KAN,
         KANLinear,
-        train,
-        predict,
         load_config,
-        save_model,
         load_model,
+        predict,
+        save_model,
         set_global_seed,
+        train,
     )
 
 
 # -------------------- 2. KAN build via widths + dicts ---------------------
 def test_kan_build_widths_and_dicts():
     import tensorflow as tf
+
     from kanx import KAN
 
     m1 = KAN([2, 64, 1])
@@ -134,7 +135,8 @@ def test_live_reset_yields_fresh():
 # -------------------- 4. Checkpoint roundtrip identity --------------------
 def test_checkpoint_roundtrip_identical_predictions():
     import tensorflow as tf
-    from kanx import KAN, save_model, load_model, predict
+
+    from kanx import KAN, load_model, predict, save_model
 
     tf.keras.utils.set_random_seed(123)
     model = KAN([2, 16, 1])
@@ -175,6 +177,7 @@ def test_cli_info():
 def test_cli_predict_with_trained_checkpoint(tmp_path):
     # Train a tiny model on synthetic data, save, then run CLI predict.
     import tensorflow as tf
+
     from kanx import KAN, save_model
 
     tf.keras.utils.set_random_seed(7)
