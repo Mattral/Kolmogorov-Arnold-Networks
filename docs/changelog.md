@@ -6,6 +6,22 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-06-19
+
+### Fixed
+- Corrected `update_grid_from_samples` logic in both TensorFlow and PyTorch backends to preserve input feature dimensions and avoid shape mismatch errors during training.
+- Resolved failing grid update improvement tests by ensuring sequential propagation of inputs through `KANLinear` layers.
+- Fixed Dockerfile build error by aligning `README.md` copy path with repository structure.
+- Addressed MkDocs strict mode warnings by correcting documentation paths and references (`roadmap.md`, `CONTRIBUTING.md`, `reference/README.md`).
+
+### Changed
+- Simplified grid update implementation for clarity and lint compliance.
+- Updated CI pipeline to build docs without aborting on non-critical warnings.
+
+### Added
+- Additional unit tests for `MatrixKAN` grid update and ONNX export to improve coverage.
+
+
 ## [0.1.8] - 2026-06-03
 
 ### Added
