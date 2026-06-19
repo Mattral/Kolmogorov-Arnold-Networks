@@ -139,8 +139,11 @@ class KAN(nn.Sequential):
             return
 
         with torch.no_grad():
+            current_x = xt
             for layer in kan_layers:
-                layer.update_grid_from_samples(xt, margin=margin)
+                layer.update_grid_from_samples(current_x, margin=margin)
+                # propagate forward for next layer
+                current_x = layer(current_x)
 
     def save(self, path: str) -> str:
         """Save state_dict + architecture spec to a single .pt file."""
