@@ -69,11 +69,11 @@ class TestMatrixKANNumericalAgreement:
         # Copy weights
         with torch.no_grad():
             matrix_layers = [m for m in matrix_model.modules() if isinstance(m, MatrixKANLinear)]
-            kan_layers = [k for k in kan_model.modules() if isinstance(k, KANLinear)]
+            kan_layers    = [k for k in kan_model.modules() if isinstance(k, KANLinear)]
             for m, k in zip(matrix_layers, kan_layers, strict=True):
-                k.base_weight.data = m.base_weight.data.clone()
+                k.base_weight.data   = m.base_weight.data.clone()
                 k.spline_weight.data = m.spline_weight.data.clone()
-                k.grid.data = m.grid.data.clone()
+                k.grid.data          = m.grid.data.clone()
 
         matrix_out = matrix_model(x)
         kan_out = kan_model(x)
