@@ -70,9 +70,12 @@ jobs:
       - name: Smoke-test container
         run: |
           docker run -d --rm -p 8000:8000 --name kanx-ci kanx:ci
+          # show logs immediately so we can see if uvicorn crashed
+          sleep 5
+          docker logs kanx-ci
           for i in {1..30}; do
             curl -fsS http://localhost:8000/api/health && break
-            sleep 2
+            sleep 5
           done
           curl -fsS http://localhost:8000/api/info
           curl -fsS -X POST http://localhost:8000/api/predict \

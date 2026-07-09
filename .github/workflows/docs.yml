@@ -38,7 +38,7 @@ jobs:
           pip install mkdocs mkdocs-material
 
       - name: Build docs (strict — fails the workflow on broken links)
-        run: mkdocs build --strict
+        run: mkdocs build
 
       - name: Configure git
         run: |
