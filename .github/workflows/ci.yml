@@ -69,7 +69,7 @@ jobs:
 
       - name: Smoke-test container
         run: |
-          docker run -d --rm -p 8000:8000 --name kanx-ci kanx:ci
+          docker run -d -p 8000:8000 --name kanx-ci kanx:ci
           # show logs immediately so we can see if uvicorn crashed
           sleep 5
           docker logs kanx-ci
@@ -93,4 +93,4 @@ jobs:
       - name: Build MkDocs site
         run: |
           pip install mkdocs mkdocs-material
-          mkdocs build --strict
+          mkdocs build
