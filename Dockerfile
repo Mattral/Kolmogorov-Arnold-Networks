@@ -21,7 +21,7 @@ COPY api/ ./api/
 COPY configs/ ./configs/
 
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .[api,onnx]
+    && pip install --no-cache-dir .[api,onnx,hub]
 
 # Make the runtime directory writeable by the non-root user (for the
 # /app/checkpoints volume mount, the model registry, etc.).
